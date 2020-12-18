@@ -2,11 +2,12 @@ name: comic_viewer
 description: A new Flutter package.
 version: 0.0.1
 author:
-homepage:
+homepage: https://github.com/0maru/comic_viewer
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
   flutter: ">=1.17.0"
+  vector_math: any
 
 dependencies:
   flutter:
