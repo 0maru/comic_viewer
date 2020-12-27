@@ -1,3 +1,4 @@
+import 'package:example/custom_scroll_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -60,7 +61,13 @@ class _MyHomePageState extends State<MyHomePage> {
               Navigator.push(
                   context, CupertinoPageRoute(builder: (_) => ScrollablePositionedListPage()));
             },
-          )
+          ),
+          ListTile(
+            title: Text('CustomScrollPage'),
+            onTap: () {
+              Navigator.push(context, CupertinoPageRoute(builder: (_) => CustomScrollPage()));
+            },
+          ),
         ],
       ),
     );

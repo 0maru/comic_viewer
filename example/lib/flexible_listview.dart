@@ -8,7 +8,19 @@ class FlexibleListViewPage extends StatefulWidget {
 class _FlexibleListViewPageState extends State<FlexibleListViewPage> {
   Axis _scrollDirection = Axis.horizontal;
   ScrollPhysics _physics = PageScrollPhysics();
-  ScrollController _scrollController = ScrollController();
+  ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = _scrollController ?? ScrollController();
+  }
+
+  @override
+  void dispose() {
+    _scrollController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,10 +28,12 @@ class _FlexibleListViewPageState extends State<FlexibleListViewPage> {
       body: Stack(
         children: [
           ListView(
+            itemExtent: itemSize,
             controller: _scrollController,
             scrollDirection: _scrollDirection,
             physics: _physics,
             reverse: _scrollDirection == Axis.horizontal,
+            cacheExtent: itemSize * 10,
             children: [
               for (var i in [1, 2, 3, 4, 5, 6, 7, 8, 9])
                 Container(
@@ -40,8 +54,7 @@ class _FlexibleListViewPageState extends State<FlexibleListViewPage> {
               color: Colors.red,
               icon: Icon(Icons.swap_horizontal_circle),
               onPressed: () {
-                // changeDirection(context);
-                disposeDirection(context);
+                changeDirection(context);
               },
             ),
           ),
@@ -50,15 +63,21 @@ class _FlexibleListViewPageState extends State<FlexibleListViewPage> {
     );
   }
 
+  double get itemSize {
+    return _scrollDirection == Axis.horizontal
+        ? MediaQuery.of(context).size.width
+        : MediaQuery.of(context).size.height;
+  }
+
   void changeDirection(BuildContext context) {
     int currentPage = 0;
     final imageWidth = MediaQuery.of(context).size.width;
     final imageHeight = MediaQuery.of(context).size.height;
 
     if (_scrollDirection == Axis.horizontal) {
-      currentPage = (_scrollController.offset / imageWidth).round();
+      currentPage = (_scrollController.position.pixels / imageWidth).round();
     } else {
-      currentPage = (_scrollController.offset / imageHeight).round();
+      currentPage = (_scrollController.position.pixels / imageHeight).round();
     }
     print('currentPage: ${currentPage}');
 
@@ -70,61 +89,19 @@ class _FlexibleListViewPageState extends State<FlexibleListViewPage> {
         _scrollDirection = Axis.horizontal;
       }
     });
-    _scrollController.jumpTo(0);
 
-    if (_scrollDirection == Axis.horizontal) {
-      print('imageWidth: ${imageWidth}');
-      print('currentPage * imageWidth = ${3 * imageWidth}');
-      print('${3 * imageWidth / imageWidth}');
-      _scrollController.jumpTo(1300);
-    } else {
-      print('imageHeight: ${imageHeight}');
-      print('currentPage * imageHeight = ${3 * imageHeight}');
-      print('${3 * imageHeight / imageHeight}');
-      _scrollController.jumpTo(3 * imageHeight);
-    }
-
-    setState(() {
-      if (_scrollDirection == Axis.horizontal) {
-        _physics = PageScrollPhysics();
-      } else {
-        _physics = AlwaysScrollableScrollPhysics();
-      }
-    });
-  }
-
-  void disposeDirection(BuildContext context) {
-    int currentPage = 0;
-    final imageWidth = MediaQuery.of(context).size.width;
-    final imageHeight = MediaQuery.of(context).size.height;
-
-    if (_scrollDirection == Axis.horizontal) {
-      currentPage = (_scrollController.offset / imageWidth).round();
-    } else {
-      currentPage = (_scrollController.offset / imageHeight).round();
-    }
-    print('currentPage: ${currentPage}');
-
-    setState(() {
-      _physics = AlwaysScrollableScrollPhysics();
-      if (_scrollDirection == Axis.horizontal) {
-        _scrollDirection = Axis.vertical;
-      } else {
-        _scrollDirection = Axis.horizontal;
-      }
-    });
-    _scrollController.jumpTo(0);
-    _scrollController.dispose();
     if (_scrollDirection == Axis.horizontal) {
       print('imageWidth: ${imageWidth}');
       print('currentPage * imageWidth = ${currentPage * imageWidth}');
       print('${currentPage * imageWidth / imageWidth}');
-      _scrollController = ScrollController(initialScrollOffset: currentPage * imageWidth);
+      _scrollController.position.jumpTo(currentPage * imageWidth);
+      print('offset: ${_scrollController.position.pixels}');
     } else {
       print('imageHeight: ${imageHeight}');
       print('currentPage * imageHeight = ${currentPage * imageHeight}');
       print('${currentPage * imageHeight / imageHeight}');
-      _scrollController = ScrollController(initialScrollOffset: currentPage * imageHeight);
+      _scrollController.position.jumpTo(currentPage * imageHeight);
+      print('offset: ${_scrollController.position.pixels}');
     }
 
     setState(() {

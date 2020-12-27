@@ -1052,26 +1052,22 @@ class _InteractiveViewState extends State<InteractiveView> with TickerProviderSt
     );
   }
 
+  /// TODO: doubleTapの処理
   void onDoubleTapToScale(TapDownDetails details) {
     final currentScale = _transformController.value.getMaxScaleOnAxis();
     print(currentScale);
     if (currentScale > 1) {
-      final Offset focalPointSceneScaled = _transformController.toScene(details.localPosition);
-      _transformController.value = _matrixTranslate(
-        _transformController.value,
-        focalPointSceneScaled - _referenceFocalPoint,
-      );
-      _referenceFocalPoint = _transformController.toScene(details.localPosition);
-
       // リセット
-      // _transformController.value = Matrix4.identity();
+      _transformController.value = Matrix4.identity();
     } else {
-      // _transformController.value = _matrixScale(_transformController.value, 2);
-
       final Offset focalPointSceneScaled = _transformController.toScene(details.localPosition);
+      _transformController.value = _matrixScale(
+        _transformController.value,
+        2,
+      );
       _transformController.value = _matrixTranslate(
         _transformController.value,
-        focalPointSceneScaled - _referenceFocalPoint,
+        focalPointSceneScaled,
       );
       _referenceFocalPoint = _transformController.toScene(details.localPosition);
     }
