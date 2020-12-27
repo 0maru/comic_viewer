@@ -1,5 +1,9 @@
-import 'package:comic_viewer/comic_viewer.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'double_tap_offset.dart';
+import 'flexible_listview.dart';
+import 'scrollable_positioned_list_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -36,10 +40,28 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: InteractiveView(
-        child: Image.network(
-          'https://www.pakutaso.com/shared/img/thumb/nekocyan458A3757_TP_V4.jpg',
-        ),
+      body: ListView(
+        children: [
+          ListTile(
+            title: Text('DoubleTapOffset'),
+            onTap: () {
+              Navigator.push(context, CupertinoPageRoute(builder: (_) => DoubleTapOffset()));
+            },
+          ),
+          ListTile(
+            title: Text('FlexibleListViewPage'),
+            onTap: () {
+              Navigator.push(context, CupertinoPageRoute(builder: (_) => FlexibleListViewPage()));
+            },
+          ),
+          ListTile(
+            title: Text('ScrollablePositionedListPage'),
+            onTap: () {
+              Navigator.push(
+                  context, CupertinoPageRoute(builder: (_) => ScrollablePositionedListPage()));
+            },
+          )
+        ],
       ),
     );
   }
