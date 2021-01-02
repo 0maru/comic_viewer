@@ -12,7 +12,9 @@ class ComicViewerPage extends StatelessWidget {
         Text('3'),
         Text('4'),
       ],
-      onPageChange: (page) {},
+      onPageChange: (page) {
+        print(page);
+      },
     );
   }
 }

@@ -14,12 +14,21 @@ class ComicViewer extends StatefulWidget {
 
   void Function(int page) onPageChange;
 
+  final Color toolbarColor;
+
+  final TextStyle titleStyle;
+
+  final Color iconColor;
+
   ComicViewer({
     Key key,
     this.title,
     this.hasLastPage = false,
     this.children,
     this.onPageChange,
+    this.toolbarColor = Colors.blue,
+    this.titleStyle,
+    this.iconColor = Colors.white,
   })  : assert(children != null),
         super(key: key);
 
@@ -54,29 +63,29 @@ class _ComicViewerState extends State<ComicViewer> {
   }
 
   void horizontalScrollListener() {
-    //
     final imageWidth = MediaQuery.of(context).size.width;
-    final virtualWidth = page * imageWidth;
     final scrollDirection = _scrollController.position.userScrollDirection;
+    final virtualWidth = page * imageWidth;
     if (scrollDirection == ScrollDirection.reverse) {
       if (page == maxPage) {
         return;
       }
-      if (virtualWidth <= _scrollController.position.pixels) {
+      if (virtualWidth * 0.9 < _scrollController.position.pixels) {
         setState(() {
           page += 1;
         });
+        widget.onPageChange(page);
       }
     }
     if (scrollDirection == ScrollDirection.forward) {
       if (page == 1) {
         return;
       }
-
-      if (virtualWidth >= _scrollController.position.pixels) {
+      if (virtualWidth - imageWidth > _scrollController.position.pixels) {
         setState(() {
           page -= 1;
         });
+        widget.onPageChange(page);
       }
     }
   }
@@ -107,7 +116,7 @@ class _ComicViewerState extends State<ComicViewer> {
         child: Stack(
           children: [
             _buildCustomScrollView(context),
-            if (_showController) TitleAppBar(title: widget.title),
+            if (_showController) _buildTitleAppBar(context),
             if (_showController) _buildBottomController(context),
           ],
         ),
@@ -132,7 +141,7 @@ class _ComicViewerState extends State<ComicViewer> {
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
             child: Center(
-              child: Text('${index}'),
+              child: Text('${index + 1}'),
             ),
           );
         },
@@ -144,7 +153,7 @@ class _ComicViewerState extends State<ComicViewer> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: ColoredBox(
-        color: Colors.red,
+        color: widget.toolbarColor,
         child: SizedBox(
           height: 60,
           child: Stack(
@@ -156,7 +165,8 @@ class _ComicViewerState extends State<ComicViewer> {
               Align(
                 alignment: Alignment.centerRight,
                 child: IconButton(
-                  icon: Icon(direction == Axis.horizontal ? Icons.height : Icons.swap_horiz),
+                  icon: Icon(direction == Axis.horizontal ? Icons.height : Icons.swap_horiz,
+                      color: widget.iconColor),
                   onPressed: () {
                     // 読む向きを切り替える
                     setState(() {
@@ -175,22 +185,12 @@ class _ComicViewerState extends State<ComicViewer> {
       ),
     );
   }
-}
 
-class TitleAppBar extends StatelessWidget {
-  final String title;
-
-  TitleAppBar({
-    Key key,
-    this.title,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildTitleAppBar(BuildContext context) {
     return Align(
       alignment: Alignment.topCenter,
       child: ColoredBox(
-        color: Colors.blueAccent,
+        color: widget.toolbarColor,
         child: SizedBox(
           height: 64,
           child: SafeArea(
@@ -202,7 +202,10 @@ class TitleAppBar extends StatelessWidget {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: IconButton(
-                    icon: Icon(Icons.close),
+                    icon: Icon(
+                      Icons.close,
+                      color: widget.iconColor,
+                    ),
                     onPressed: () {
                       Navigator.pop(context);
                     },
@@ -214,7 +217,8 @@ class TitleAppBar extends StatelessWidget {
                     width: MediaQuery.of(context).size.width - 94,
                     child: Center(
                       child: Text(
-                        title,
+                        widget.title,
+                        style: widget.titleStyle ?? TextStyle(color: Colors.white),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
