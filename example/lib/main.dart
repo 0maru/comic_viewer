@@ -1,3 +1,4 @@
+import 'package:example/comic_viewer.dart';
 import 'package:example/custom_scroll_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -68,6 +69,12 @@ class _MyHomePageState extends State<MyHomePage> {
               Navigator.push(context, CupertinoPageRoute(builder: (_) => CustomScrollPage()));
             },
           ),
+          ListTile(
+            title: Text('ComicViewerPage'),
+            onTap: () {
+              Navigator.push(context, CupertinoPageRoute(builder: (_) => ComicViewerPage()));
+            },
+          )
         ],
       ),
     );
