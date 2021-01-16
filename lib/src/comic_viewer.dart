@@ -20,6 +20,10 @@ class ComicViewer extends StatefulWidget {
 
   final Color iconColor;
 
+  final Color sliderForegroundColor;
+
+  final Color sliderBackgroundColor;
+
   ComicViewer({
     Key key,
     this.title,
@@ -29,6 +33,8 @@ class ComicViewer extends StatefulWidget {
     this.toolbarColor = Colors.blue,
     this.titleStyle,
     this.iconColor = Colors.white,
+    this.sliderBackgroundColor,
+    this.sliderForegroundColor,
   })  : assert(children != null),
         super(key: key);
 
@@ -93,6 +99,30 @@ class _ComicViewerState extends State<ComicViewer> {
   void verticalScrollListener() {
     //
     final imageHeight = MediaQuery.of(context).size.height;
+    final virtualHeight = page * imageHeight;
+    final scrollDirection = _scrollController.position.userScrollDirection;
+    if (scrollDirection == ScrollDirection.reverse) {
+      if (page == maxPage) {
+        return;
+      }
+      if (virtualHeight - (imageHeight / 2) < _scrollController.position.pixels) {
+        setState(() {
+          page += 1;
+        });
+        widget.onPageChange(page);
+      }
+    }
+    if (scrollDirection == ScrollDirection.forward) {
+      if (page == 1) {
+        return;
+      }
+      if (virtualHeight - (imageHeight / 2) > _scrollController.position.pixels) {
+        setState(() {
+          page -= 1;
+        });
+        widget.onPageChange(page);
+      }
+    }
   }
 
   int get maxPage => (widget.children.length + (widget.hasLastPage ? 1 : 0)).toInt();
@@ -136,7 +166,12 @@ class _ComicViewerState extends State<ComicViewer> {
             direction == Axis.horizontal ? PageScrollPhysics() : AlwaysScrollableScrollPhysics(),
         itemCount: widget.children.length,
         itemBuilder: (context, index) {
-          return SizedBox(
+          return Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: index % 2 == 0 ? Colors.black45 : Colors.amberAccent,
+              ),
+            ),
             key: ValueKey(index),
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
@@ -161,6 +196,20 @@ class _ComicViewerState extends State<ComicViewer> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text('${page} / ${maxPage}'),
+              ),
+              RotatedBox(
+                quarterTurns: 2,
+                child: Slider(
+                  value: 0,
+                  min: 0,
+                  max: maxPage.toDouble(),
+                  activeColor: Colors.black45,
+                  inactiveColor: Colors.amber,
+                  label: '${page}',
+                  onChanged: (double value) {
+                    print(value);
+                  },
+                ),
               ),
               Align(
                 alignment: Alignment.centerRight,
