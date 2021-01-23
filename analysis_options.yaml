@@ -1,0 +1,25 @@
+analyzer:
+  strong-mode:
+    implicit-casts: false
+    implicit-dynamic: false
+
+linter:
+  rules:
+    cascade_invocations: false
+    prefer_double_quotes: false
+    always_specify_types: false
+    unnecessary_final: false
+    prefer_expression_function_bodies: false
+    always_put_required_named_parameters_first: false
+    avoid_as: false
+    flutter_style_todos: false
+    avoid_catches_without_on_clauses: false
+    lines_longer_than_80_chars: false
+    avoid_annotating_with_dynamic: false
+    always_use_package_imports: false
+    no_default_cases: false
+    prefer_asserts_with_message: false
+    avoid_types_on_closure_parameters: false
+    diagnostic_describe_all_properties: false
+    avoid_positional_boolean_parameters: false
+    prefer_const_constructors_in_immutables: false
