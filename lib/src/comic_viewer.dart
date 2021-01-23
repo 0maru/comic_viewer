@@ -12,7 +12,7 @@ class ComicViewer extends StatefulWidget {
   /// ページ
   final List<Widget> children;
 
-  void Function(int page) onPageChange;
+  final void Function(int page) onPageChange;
 
   final Color toolbarColor;
 
@@ -24,7 +24,7 @@ class ComicViewer extends StatefulWidget {
 
   final Color sliderBackgroundColor;
 
-  ComicViewer({
+  const ComicViewer({
     Key key,
     this.title,
     this.hasLastPage = false,
@@ -176,7 +176,7 @@ class _ComicViewerState extends State<ComicViewer> {
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
             child: Center(
-              child: Text('${index + 1}'),
+              child: Text('${_scrollController.position.pixels}'),
             ),
           );
         },
@@ -191,24 +191,23 @@ class _ComicViewerState extends State<ComicViewer> {
         color: widget.toolbarColor,
         child: SizedBox(
           height: 60,
-          child: Stack(
+          child: Row(
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text('${page} / ${maxPage}'),
-              ),
-              RotatedBox(
-                quarterTurns: 2,
-                child: Slider(
-                  value: 0,
-                  min: 0,
-                  max: maxPage.toDouble(),
-                  activeColor: Colors.black45,
-                  inactiveColor: Colors.amber,
-                  label: '${page}',
-                  onChanged: (double value) {
-                    print(value);
-                  },
+              Text('${page} / ${maxPage}'),
+              Expanded(
+                child: RotatedBox(
+                  quarterTurns: 2,
+                  child: Slider(
+                    value: page.toDouble() - 1,
+                    min: 0,
+                    max: maxPage.toDouble() - 1,
+                    activeColor: Colors.amber,
+                    inactiveColor: Colors.white38,
+                    label: '${page}',
+                    onChanged: (double value) {
+                      print(value);
+                    },
+                  ),
                 ),
               ),
               Align(
