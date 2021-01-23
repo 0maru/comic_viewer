@@ -80,6 +80,7 @@ class InteractiveView extends StatefulWidget {
     this.panEnabled = true,
     this.scaleEnabled = true,
     this.transformationController,
+    this.onDoubleTap,
     @required this.child,
   })  : assert(alignPanAxis != null),
         assert(child != null),
@@ -261,7 +262,7 @@ class InteractiveView extends StatefulWidget {
   ///
   ///  * [onInteractionStart], which handles the start of the same interaction.
   ///  * [onInteractionEnd], which handles the end of the same interaction.
-  final GestureScaleUpdateCallback onInteractionUpdate;
+  final void Function(ScaleUpdateDetails details, double curretScale) onInteractionUpdate;
 
   /// A [TransformationController] for the transformation performed on the
   /// child.
@@ -374,6 +375,8 @@ class InteractiveView extends StatefulWidget {
   ///  * [ValueNotifier], the parent class of TransformationController.
   ///  * [TextEditingController] for an example of another similar pattern.
   final TransformController transformationController;
+
+  final void Function(bool) onDoubleTap;
 
   /// Returns the closest point to the given point on the given line segment.
   @visibleForTesting
@@ -494,10 +497,10 @@ class InteractiveView extends StatefulWidget {
   }
 
   @override
-  _InteractiveViewState createState() => _InteractiveViewState();
+  InteractiveViewState createState() => InteractiveViewState();
 }
 
-class _InteractiveViewState extends State<InteractiveView> with TickerProviderStateMixin {
+class InteractiveViewState extends State<InteractiveView> with TickerProviderStateMixin {
   TransformController _transformController;
 
   final GlobalKey _childKey = GlobalKey();
@@ -746,14 +749,22 @@ class _InteractiveViewState extends State<InteractiveView> with TickerProviderSt
   // handled with GestureDetector's scale gesture.
   void _onScaleUpdate(ScaleUpdateDetails details) {
     final double scale = _transformController.value.getMaxScaleOnAxis();
+    final double desiredScale = _scaleStart * details.scale;
+    final double scaleChange = desiredScale / scale;
+
+    /// 変形後の
+    final matrixScale = _matrixScale(_transformController.value, scaleChange);
     if (widget.onInteractionUpdate != null) {
-      widget.onInteractionUpdate(ScaleUpdateDetails(
-        focalPoint: _transformController.toScene(
-          details.localFocalPoint,
+      widget.onInteractionUpdate(
+        ScaleUpdateDetails(
+          focalPoint: _transformController.toScene(
+            details.localFocalPoint,
+          ),
+          scale: details.scale,
+          rotation: details.rotation,
         ),
-        scale: details.scale,
-        rotation: details.rotation,
-      ));
+        matrixScale.getMaxScaleOnAxis(),
+      );
     }
     final Offset focalPointScene = _transformController.toScene(
       details.localFocalPoint,
@@ -778,12 +789,15 @@ class _InteractiveViewState extends State<InteractiveView> with TickerProviderSt
         // details.scale gives us the amount to change the scale as of the
         // start of this gesture, so calculate the amount to scale as of the
         // previous call to _onScaleUpdate.
-        final double desiredScale = _scaleStart * details.scale;
-        final double scaleChange = desiredScale / scale;
-        _transformController.value = _matrixScale(
-          _transformController.value,
-          scaleChange,
-        );
+
+        // 上で計算している
+        // final double desiredScale = _scaleStart * details.scale;
+        // final double scaleChange = desiredScale / scale;
+        // _transformController.value = _matrixScale(
+        //   _transformController.value,
+        //   scaleChange,
+        // );
+        _transformController.value = matrixScale;
 
         // While scaling, translate such that the user's two fingers stay on
         // the same places in the scene. That means that the focal point of
@@ -1057,9 +1071,11 @@ class _InteractiveViewState extends State<InteractiveView> with TickerProviderSt
     final currentScale = _transformController.value.getMaxScaleOnAxis();
     print(currentScale);
     if (currentScale > 1) {
+      widget.onDoubleTap(false);
       // リセット
       _transformController.value = Matrix4.identity();
     } else {
+      widget.onDoubleTap(true);
       final Offset focalPointSceneScaled = _transformController.toScene(details.localPosition);
       _transformController.value = _matrixScale(
         _transformController.value,
@@ -1071,6 +1087,10 @@ class _InteractiveViewState extends State<InteractiveView> with TickerProviderSt
       );
       _referenceFocalPoint = _transformController.toScene(details.localPosition);
     }
+  }
+
+  void resetController() {
+    _transformController.value = Matrix4.identity();
   }
 }
 

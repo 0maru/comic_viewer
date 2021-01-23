@@ -1,3 +1,4 @@
+import 'package:comic_viewer/comic_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -12,16 +13,25 @@ class ComicViewer extends StatefulWidget {
   /// ページ
   final List<Widget> children;
 
+  /// ページ遷移時のイベント
   final void Function(int page) onPageChange;
 
+  /// 初めて最終ページに到達した先に動く
+  final void Function() onLastPage;
+
+  /// ツールバーカラー
   final Color toolbarColor;
 
+  /// タイトルのテキストスタイル
   final TextStyle titleStyle;
 
+  /// アイコンカラー
   final Color iconColor;
 
+  /// スライダーアクティブカラー
   final Color sliderForegroundColor;
 
+  /// スライダーイナクティブカラ
   final Color sliderBackgroundColor;
 
   const ComicViewer({
@@ -30,11 +40,12 @@ class ComicViewer extends StatefulWidget {
     this.hasLastPage = false,
     this.children,
     this.onPageChange,
+    this.onLastPage,
     this.toolbarColor = Colors.blue,
     this.titleStyle,
     this.iconColor = Colors.white,
-    this.sliderBackgroundColor,
-    this.sliderForegroundColor,
+    this.sliderBackgroundColor = Colors.white24,
+    this.sliderForegroundColor = Colors.blue,
   })  : assert(children != null),
         super(key: key);
 
@@ -43,10 +54,21 @@ class ComicViewer extends StatefulWidget {
 }
 
 class _ComicViewerState extends State<ComicViewer> {
+  /// ツールバー表示フラグ
   bool _showController = true;
-  ScrollController _scrollController = ScrollController();
+
+  /// スクロールコントローラー
+  ScrollController _scrollController;
+
+  /// 現在のページ数
   int page = 1;
+
+  /// Viewerスクロール向き
   Axis direction = Axis.horizontal;
+
+  bool _isScale = false;
+
+  bool _canScale = false;
 
   @override
   void initState() {
@@ -60,6 +82,10 @@ class _ComicViewerState extends State<ComicViewer> {
           verticalScrollListener();
         }
       });
+
+    for (var i in widget.children) {
+      keys.add(GlobalKey<InteractiveViewState>(debugLabel: '${i.hashCode}'));
+    }
   }
 
   @override
@@ -68,6 +94,9 @@ class _ComicViewerState extends State<ComicViewer> {
     super.dispose();
   }
 
+  /// 横方向ページ移動管理
+  ///
+  /// スクロール位置が画面の横幅分進むと1ページ進んだ扱いにする
   void horizontalScrollListener() {
     final imageWidth = MediaQuery.of(context).size.width;
     final scrollDirection = _scrollController.position.userScrollDirection;
@@ -96,8 +125,10 @@ class _ComicViewerState extends State<ComicViewer> {
     }
   }
 
+  /// 縦方向ページ移動管理
+  ///
+  /// スクロール位置が画面の縦半分の位置を越えるとページが進んだ扱いにする
   void verticalScrollListener() {
-    //
     final imageHeight = MediaQuery.of(context).size.height;
     final virtualHeight = page * imageHeight;
     final scrollDirection = _scrollController.position.userScrollDirection;
@@ -125,7 +156,10 @@ class _ComicViewerState extends State<ComicViewer> {
     }
   }
 
+  /// 全ページ数
   int get maxPage => (widget.children.length + (widget.hasLastPage ? 1 : 0)).toInt();
+
+  ///　画像サイズ
   double get itemSize {
     return direction == Axis.horizontal
         ? MediaQuery.of(context).size.width
@@ -154,6 +188,8 @@ class _ComicViewerState extends State<ComicViewer> {
     );
   }
 
+  List<GlobalKey<InteractiveViewState>> keys = [];
+
   Widget _buildCustomScrollView(BuildContext context) {
     return Align(
       alignment: Alignment.center,
@@ -162,21 +198,58 @@ class _ComicViewerState extends State<ComicViewer> {
         scrollDirection: direction,
         reverse: direction == Axis.horizontal,
         controller: _scrollController,
-        physics:
-            direction == Axis.horizontal ? PageScrollPhysics() : AlwaysScrollableScrollPhysics(),
+        physics: _isScale
+            ? NeverScrollableScrollPhysics()
+            : direction == Axis.horizontal
+                ? PageScrollPhysics()
+                : AlwaysScrollableScrollPhysics(),
         itemCount: widget.children.length,
         itemBuilder: (context, index) {
           return Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: index % 2 == 0 ? Colors.black45 : Colors.amberAccent,
-              ),
-            ),
             key: ValueKey(index),
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            child: Center(
-              child: Text('${_scrollController.position.pixels}'),
+            child: InteractiveView(
+              key: keys[index],
+              panEnabled: _isScale,
+              scaleEnabled: _canScale,
+              onDoubleTap: (val) {
+                setState(() {
+                  _isScale = val;
+                });
+              },
+              onInteractionUpdate: (details, scale) {
+                print(scale);
+                // スケールした状態からスケールするとスケール値1.0からになる
+                // 現在のスケール値に足すから？
+                if (scale == 1.0) {
+                  return;
+                }
+
+                ///　拡大の遊びを1.2でもたせる
+                if (scale > 1.2) {
+                  if (!_canScale) {
+                    setState(() {
+                      _canScale = true;
+                    });
+                  }
+                  setState(() {
+                    _isScale = true;
+                  });
+                } else {
+                  if (_canScale) {
+                    setState(() {
+                      _canScale = false;
+                    });
+                  }
+                  if (_isScale) {
+                    keys[index].currentState.resetController();
+                  }
+                }
+              },
+              child: Image.network(
+                'https://img-mdpr.freetls.fastly.net/article/l84_/hm/l84_JtXeiGkBjzKGNPog3AvpFgP21xEPuMP7MhUkK-U.jpg?width=700&disable=upscale',
+              ),
             ),
           );
         },
@@ -201,8 +274,8 @@ class _ComicViewerState extends State<ComicViewer> {
                     value: page.toDouble() - 1,
                     min: 0,
                     max: maxPage.toDouble() - 1,
-                    activeColor: Colors.amber,
-                    inactiveColor: Colors.white38,
+                    activeColor: widget.sliderForegroundColor,
+                    inactiveColor: widget.sliderBackgroundColor,
                     label: '${page}',
                     onChanged: (double value) {
                       print(value);
@@ -213,8 +286,10 @@ class _ComicViewerState extends State<ComicViewer> {
               Align(
                 alignment: Alignment.centerRight,
                 child: IconButton(
-                  icon: Icon(direction == Axis.horizontal ? Icons.height : Icons.swap_horiz,
-                      color: widget.iconColor),
+                  icon: Icon(
+                    direction == Axis.horizontal ? Icons.height : Icons.swap_horiz,
+                    color: widget.iconColor,
+                  ),
                   onPressed: () {
                     // 読む向きを切り替える
                     setState(() {
