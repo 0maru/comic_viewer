@@ -1,11 +1,6 @@
 import 'package:example/comic_viewer.dart';
-import 'package:example/custom_scroll_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import 'double_tap_offset.dart';
-import 'flexible_listview.dart';
-import 'scrollable_positioned_list_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -45,34 +40,13 @@ class _MyHomePageState extends State<MyHomePage> {
       body: ListView(
         children: [
           ListTile(
-            title: Text('DoubleTapOffset'),
-            onTap: () {
-              Navigator.push(context, CupertinoPageRoute(builder: (_) => DoubleTapOffset()));
-            },
-          ),
-          ListTile(
-            title: Text('FlexibleListViewPage'),
-            onTap: () {
-              Navigator.push(context, CupertinoPageRoute(builder: (_) => FlexibleListViewPage()));
-            },
-          ),
-          ListTile(
-            title: Text('ScrollablePositionedListPage'),
-            onTap: () {
-              Navigator.push(
-                  context, CupertinoPageRoute(builder: (_) => ScrollablePositionedListPage()));
-            },
-          ),
-          ListTile(
-            title: Text('CustomScrollPage'),
-            onTap: () {
-              Navigator.push(context, CupertinoPageRoute(builder: (_) => CustomScrollPage()));
-            },
-          ),
-          ListTile(
             title: Text('ComicViewerPage'),
             onTap: () {
-              Navigator.push(context, CupertinoPageRoute(builder: (_) => ComicViewerPage()));
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => ComicViewerPage(),
+                ),
+              );
             },
           )
         ],

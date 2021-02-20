@@ -560,7 +560,7 @@ class InteractiveViewState extends State<InteractiveView> with TickerProviderSta
     if (translation == Offset.zero) {
       return matrix.clone();
     }
-
+    print('_matrixTranslate');
     final Offset alignedTranslation =
         widget.alignPanAxis && _panAxis != null ? _alignAxis(translation, _panAxis) : translation;
 
@@ -739,6 +739,7 @@ class InteractiveViewState extends State<InteractiveView> with TickerProviderSta
     _gestureType = null;
     _panAxis = null;
     _scaleStart = _transformController.value.getMaxScaleOnAxis();
+    print('_onScaleStart ${details.localFocalPoint}');
     _referenceFocalPoint = _transformController.toScene(
       details.localFocalPoint,
     );
@@ -806,6 +807,8 @@ class InteractiveViewState extends State<InteractiveView> with TickerProviderSta
         final Offset focalPointSceneScaled = _transformController.toScene(
           details.localFocalPoint,
         );
+        print('_onScaleUpdate ${details.localFocalPoint}');
+        print('focalPointSceneScaled - _referenceFocalPoint: ${focalPointSceneScaled - _referenceFocalPoint}');
         _transformController.value = _matrixTranslate(
           _transformController.value,
           focalPointSceneScaled - _referenceFocalPoint,
@@ -849,6 +852,7 @@ class InteractiveViewState extends State<InteractiveView> with TickerProviderSta
         // Translate so that the same point in the scene is underneath the
         // focal point before and after the movement.
         final Offset translationChange = focalPointScene - _referenceFocalPoint;
+        print('pan');
         _transformController.value = _matrixTranslate(
           _transformController.value,
           translationChange,
@@ -1054,7 +1058,9 @@ class InteractiveViewState extends State<InteractiveView> with TickerProviderSta
         onDoubleTapCancel: () {},
         onDoubleTapDown: (detail) {
           // print(detail.localPosition);
-          onDoubleTapToScale(detail);
+          final RenderBox referenceBox = context.findRenderObject() as RenderBox;
+          final tapOffset = referenceBox.globalToLocal(detail.globalPosition);
+          onDoubleTapToScale(detail, tapOffset);
         },
         onDoubleTap: () {},
         behavior: HitTestBehavior.opaque, // Necessary when panning off screen.
@@ -1067,25 +1073,21 @@ class InteractiveViewState extends State<InteractiveView> with TickerProviderSta
   }
 
   /// TODO: doubleTapの処理
-  void onDoubleTapToScale(TapDownDetails details) {
+  /// タップした位置から拡大する処理が不足している
+  void onDoubleTapToScale(TapDownDetails details, Offset offset) {
     final currentScale = _transformController.value.getMaxScaleOnAxis();
-    print(currentScale);
     if (currentScale > 1) {
       widget.onDoubleTap(false);
       // リセット
       _transformController.value = Matrix4.identity();
     } else {
       widget.onDoubleTap(true);
-      final Offset focalPointSceneScaled = _transformController.toScene(details.localPosition);
-      _transformController.value = _matrixScale(
-        _transformController.value,
-        2,
-      );
+      final matrixScale = _matrixScale(_transformController.value, 2);
+      _transformController.value = matrixScale;
       _transformController.value = _matrixTranslate(
         _transformController.value,
-        focalPointSceneScaled,
+        Offset(-offset.dx * 0.5, -offset.dy * 0.5),
       );
-      _referenceFocalPoint = _transformController.toScene(details.localPosition);
     }
   }
 
