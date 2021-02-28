@@ -262,47 +262,50 @@ class _ComicViewerState extends State<ComicViewer> {
       alignment: Alignment.bottomCenter,
       child: ColoredBox(
         color: widget.toolbarColor,
-        child: SizedBox(
-          height: 60,
-          child: Row(
-            children: [
-              Text('${page} / ${maxPage}'),
-              Expanded(
-                child: RotatedBox(
-                  quarterTurns: 2,
-                  child: Slider(
-                    value: page.toDouble() - 1,
-                    min: 0,
-                    max: maxPage.toDouble() - 1,
-                    activeColor: widget.sliderForegroundColor,
-                    inactiveColor: widget.sliderBackgroundColor,
-                    label: '${page}',
-                    onChanged: (double value) {
-                      print(value);
+        child: SafeArea(
+          top: false,
+          child: SizedBox(
+            height: 60,
+            child: Row(
+              children: [
+                Text('${page} / ${maxPage}'),
+                Expanded(
+                  child: RotatedBox(
+                    quarterTurns: 2,
+                    child: Slider(
+                      value: page.toDouble() - 1,
+                      min: 0,
+                      max: maxPage.toDouble() - 1,
+                      activeColor: widget.sliderForegroundColor,
+                      inactiveColor: widget.sliderBackgroundColor,
+                      label: '${page}',
+                      onChanged: (double value) {
+                        print(value);
+                      },
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: IconButton(
+                    icon: Icon(
+                      direction == Axis.horizontal ? Icons.height : Icons.swap_horiz,
+                      color: widget.iconColor,
+                    ),
+                    onPressed: () {
+                      // 読む向きを切り替える
+                      setState(() {
+                        if (direction == Axis.horizontal) {
+                          direction = Axis.vertical;
+                        } else {
+                          direction = Axis.horizontal;
+                        }
+                      });
                     },
                   ),
                 ),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: IconButton(
-                  icon: Icon(
-                    direction == Axis.horizontal ? Icons.height : Icons.swap_horiz,
-                    color: widget.iconColor,
-                  ),
-                  onPressed: () {
-                    // 読む向きを切り替える
-                    setState(() {
-                      if (direction == Axis.horizontal) {
-                        direction = Axis.vertical;
-                      } else {
-                        direction = Axis.horizontal;
-                      }
-                    });
-                  },
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -314,40 +317,43 @@ class _ComicViewerState extends State<ComicViewer> {
       alignment: Alignment.topCenter,
       child: ColoredBox(
         color: widget.toolbarColor,
-        child: SizedBox(
-          height: 64,
-          child: SafeArea(
-            bottom: false,
-            left: false,
-            right: false,
-            child: Stack(
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.close,
-                      color: widget.iconColor,
+        child: SafeArea(
+          bottom: false,
+          child: SizedBox(
+            height: kToolbarHeight,
+            child: SafeArea(
+              bottom: false,
+              left: false,
+              right: false,
+              child: Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.close,
+                        color: widget.iconColor,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
                     ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
                   ),
-                ),
-                Align(
-                  alignment: Alignment.center,
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width - 94,
-                    child: Center(
-                      child: Text(
-                        widget.title,
-                        style: widget.titleStyle ?? TextStyle(color: Colors.white),
-                        overflow: TextOverflow.ellipsis,
+                  Align(
+                    alignment: Alignment.center,
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width - 94,
+                      child: Center(
+                        child: Text(
+                          widget.title,
+                          style: widget.titleStyle ?? TextStyle(color: Colors.white),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
