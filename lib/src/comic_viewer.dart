@@ -215,60 +215,47 @@ class _ComicViewerState extends State<ComicViewer> {
                 : AlwaysScrollableScrollPhysics(),
         itemCount: widget.children.length,
         itemBuilder: (context, index) {
-          return Container(
-            key: ValueKey(index),
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            child: InteractiveView(
-              key: keys[index],
-              panEnabled: _isScale,
-              scaleEnabled: _canScale,
-              onDoubleTap: (val) {
-                setState(() {
-                  _isScale = val;
-                });
-              },
-              onInteractionUpdate: (details, scale) {
-                // スケールした状態からスケールするとスケール値1.0からになる
-                // 現在のスケール値に足すから？
-                if (scale == 1.0) {
-                  return;
-                }
+          return InteractiveView(
+            constrained: false,
+            key: keys[index],
+            panEnabled: _isScale,
+            scaleEnabled: _canScale,
+            onDoubleTap: (val) {
+              setState(() {
+                _isScale = val;
+              });
+            },
+            onInteractionUpdate: (details, scale) {
+              // スケールした状態からスケールするとスケール値1.0からになる
+              // 現在のスケール値に足すから？
+              if (scale == 1.0) {
+                return;
+              }
 
-                ///　拡大の遊びを1.2でもたせる
-                if (scale > 1.2) {
-                  if (!_canScale) {
-                    setState(() {
-                      _canScale = true;
-                    });
-                  }
+              ///　拡大の遊びを1.2でもたせる
+              if (scale > 1.2) {
+                if (!_canScale) {
                   setState(() {
-                    _isScale = true;
+                    _canScale = true;
                   });
-                } else {
-                  if (_canScale) {
-                    setState(() {
-                      _canScale = false;
-                    });
-                  }
-                  if (_isScale) {
-                    keys[index].currentState.resetController();
-                  }
                 }
-              },
-              child: Stack(
-                children: [
-                  Align(
-                    child: Image.network(
-                      'https://www.pakutaso.com/shared/img/thumb/heriyakei419188_TP_V4.jpg',
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.center,
-                    child: Text(index.toString()),
-                  ),
-                ],
-              ),
+                setState(() {
+                  _isScale = true;
+                });
+              } else {
+                if (_canScale) {
+                  setState(() {
+                    _canScale = false;
+                  });
+                }
+                if (_isScale) {
+                  keys[index].currentState.resetController();
+                }
+              }
+            },
+            child: Image.network(
+              'https://www.pakutaso.com/shared/img/thumb/heriyakei419188_TP_V4.jpg',
+              height: MediaQuery.of(context).size.height,
             ),
           );
         },
