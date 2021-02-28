@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:comic_viewer/comic_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -109,7 +111,9 @@ class _ComicViewerState extends State<ComicViewer> {
         setState(() {
           page += 1;
         });
-        widget.onPageChange(page);
+        if (widget.onPageChange != null) {
+          widget.onPageChange(page);
+        }
       }
     }
     if (scrollDirection == ScrollDirection.forward) {
@@ -120,7 +124,9 @@ class _ComicViewerState extends State<ComicViewer> {
         setState(() {
           page -= 1;
         });
-        widget.onPageChange(page);
+        if (widget.onPageChange != null) {
+          widget.onPageChange(page);
+        }
       }
     }
   }
@@ -140,7 +146,9 @@ class _ComicViewerState extends State<ComicViewer> {
         setState(() {
           page += 1;
         });
-        widget.onPageChange(page);
+        if (widget.onPageChange != null) {
+          widget.onPageChange(page);
+        }
       }
     }
     if (scrollDirection == ScrollDirection.forward) {
@@ -151,7 +159,9 @@ class _ComicViewerState extends State<ComicViewer> {
         setState(() {
           page -= 1;
         });
-        widget.onPageChange(page);
+        if (widget.onPageChange != null) {
+          widget.onPageChange(page);
+        }
       }
     }
   }
@@ -219,7 +229,6 @@ class _ComicViewerState extends State<ComicViewer> {
                 });
               },
               onInteractionUpdate: (details, scale) {
-                print(scale);
                 // スケールした状態からスケールするとスケール値1.0からになる
                 // 現在のスケール値に足すから？
                 if (scale == 1.0) {
@@ -247,8 +256,18 @@ class _ComicViewerState extends State<ComicViewer> {
                   }
                 }
               },
-              child: Image.network(
-                'https://img-mdpr.freetls.fastly.net/article/l84_/hm/l84_JtXeiGkBjzKGNPog3AvpFgP21xEPuMP7MhUkK-U.jpg?width=700&disable=upscale',
+              child: Stack(
+                children: [
+                  Align(
+                    child: Image.network(
+                      'https://www.pakutaso.com/shared/img/thumb/heriyakei419188_TP_V4.jpg',
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(index.toString()),
+                  ),
+                ],
               ),
             ),
           );
@@ -266,48 +285,75 @@ class _ComicViewerState extends State<ComicViewer> {
           top: false,
           child: SizedBox(
             height: 60,
-            child: Row(
-              children: [
-                Text('${page} / ${maxPage}'),
-                Expanded(
-                  child: RotatedBox(
-                    quarterTurns: 2,
-                    child: Slider(
-                      value: page.toDouble() - 1,
-                      min: 0,
-                      max: maxPage.toDouble() - 1,
-                      activeColor: widget.sliderForegroundColor,
-                      inactiveColor: widget.sliderBackgroundColor,
-                      label: '${page}',
-                      onChanged: (double value) {
-                        print(value);
-                      },
-                    ),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: IconButton(
-                    icon: Icon(
-                      direction == Axis.horizontal ? Icons.height : Icons.swap_horiz,
-                      color: widget.iconColor,
-                    ),
-                    onPressed: () {
-                      // 読む向きを切り替える
-                      setState(() {
-                        if (direction == Axis.horizontal) {
-                          direction = Axis.vertical;
-                        } else {
-                          direction = Axis.horizontal;
-                        }
-                      });
-                    },
-                  ),
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8),
+              child: Row(
+                children: [
+                  Text('${page} / ${maxPage}'),
+                  _buildBottomControllerSlider(context),
+                  _buildBottomControllerDirectionButton(context),
+                ],
+              ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildBottomControllerSlider(BuildContext context) {
+    return Expanded(
+      child: RotatedBox(
+        quarterTurns: 2,
+        child: Slider(
+          value: page.toDouble() - 1,
+          min: 0,
+          max: maxPage.toDouble() - 1,
+          activeColor: widget.sliderForegroundColor,
+          inactiveColor: widget.sliderBackgroundColor,
+          label: '${page}',
+          onChanged: (double value) {
+            double offset;
+            if (direction == Axis.horizontal) {
+              final imageWidth = MediaQuery.of(context).size.width;
+              offset = (value.toInt() + 1) * imageWidth;
+            } else {
+              final imageHeight = MediaQuery.of(context).size.height;
+              offset = (value.toInt() + 1) * imageHeight;
+            }
+            print(offset);
+            _scrollController.animateTo(
+              offset,
+              duration: const Duration(milliseconds: 100),
+              curve: Curves.fastOutSlowIn,
+            );
+            setState(() {
+              page = min(max(0, maxPage), value.toInt() + 1);
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomControllerDirectionButton(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: IconButton(
+        icon: Icon(
+          direction == Axis.horizontal ? Icons.height : Icons.swap_horiz,
+          color: widget.iconColor,
+        ),
+        onPressed: () {
+          // 読む向きを切り替える
+          setState(() {
+            if (direction == Axis.horizontal) {
+              direction = Axis.vertical;
+            } else {
+              direction = Axis.horizontal;
+            }
+          });
+        },
       ),
     );
   }
@@ -327,34 +373,42 @@ class _ComicViewerState extends State<ComicViewer> {
               right: false,
               child: Stack(
                 children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.close,
-                        color: widget.iconColor,
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.center,
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width - 94,
-                      child: Center(
-                        child: Text(
-                          widget.title,
-                          style: widget.titleStyle ?? TextStyle(color: Colors.white),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildAppBarCloseButton(context),
+                  _buildAppBarTitle(context),
                 ],
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppBarCloseButton(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: IconButton(
+        icon: Icon(
+          Icons.close,
+          color: widget.iconColor,
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+    );
+  }
+
+  Widget _buildAppBarTitle(BuildContext context) {
+    return Align(
+      alignment: Alignment.center,
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width - 94,
+        child: Center(
+          child: Text(
+            widget.title,
+            style: widget.titleStyle ?? TextStyle(color: Colors.white),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ),
