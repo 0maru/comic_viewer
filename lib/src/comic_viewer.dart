@@ -7,25 +7,25 @@ import 'package:flutter/services.dart';
 
 class ComicViewer extends StatefulWidget {
   /// タイトル
-  final String title;
+  final String? title;
 
   /// 最終ページ後に1ページ挟む場合は true
   final bool hasLastPage;
 
   /// ページ
-  final List<Widget> children;
+  final List<Widget> images;
 
   /// ページ遷移時のイベント
-  final void Function(int page) onPageChange;
+  final void Function(int page)? onPageChange;
 
   /// 初めて最終ページに到達した先に動く
-  final void Function() onLastPage;
+  final void Function()? onLastPage;
 
   /// ツールバーカラー
   final Color toolbarColor;
 
   /// タイトルのテキストスタイル
-  final TextStyle titleStyle;
+  final TextStyle? titleStyle;
 
   /// アイコンカラー
   final Color iconColor;
@@ -37,10 +37,10 @@ class ComicViewer extends StatefulWidget {
   final Color sliderBackgroundColor;
 
   const ComicViewer({
-    Key key,
+    Key? key,
     this.title,
     this.hasLastPage = false,
-    this.children,
+    required this.images,
     this.onPageChange,
     this.onLastPage,
     this.toolbarColor = Colors.blue,
@@ -48,8 +48,7 @@ class ComicViewer extends StatefulWidget {
     this.iconColor = Colors.white,
     this.sliderBackgroundColor = Colors.white24,
     this.sliderForegroundColor = Colors.blue,
-  })  : assert(children != null),
-        super(key: key);
+  }) : super(key: key);
 
   @override
   _ComicViewerState createState() => _ComicViewerState();
@@ -60,7 +59,7 @@ class _ComicViewerState extends State<ComicViewer> {
   bool _showController = true;
 
   /// スクロールコントローラー
-  ScrollController _scrollController;
+  ScrollController? _scrollController;
 
   /// 現在のページ数
   int page = 1;
@@ -76,7 +75,7 @@ class _ComicViewerState extends State<ComicViewer> {
   void initState() {
     super.initState();
     _scrollController = _scrollController ?? ScrollController();
-    _scrollController
+    _scrollController!
       ..addListener(() {
         if (direction == Axis.horizontal) {
           horizontalScrollListener();
@@ -85,14 +84,14 @@ class _ComicViewerState extends State<ComicViewer> {
         }
       });
 
-    for (var i in widget.children) {
+    for (var i in widget.images) {
       keys.add(GlobalKey<InteractiveViewState>(debugLabel: '${i.hashCode}'));
     }
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _scrollController!.dispose();
     super.dispose();
   }
 
@@ -101,18 +100,18 @@ class _ComicViewerState extends State<ComicViewer> {
   /// スクロール位置が画面の横幅分進むと1ページ進んだ扱いにする
   void horizontalScrollListener() {
     final imageWidth = MediaQuery.of(context).size.width;
-    final scrollDirection = _scrollController.position.userScrollDirection;
+    final scrollDirection = _scrollController!.position.userScrollDirection;
     final virtualWidth = page * imageWidth;
     if (scrollDirection == ScrollDirection.reverse) {
       if (page == maxPage) {
         return;
       }
-      if (virtualWidth * 0.9 < _scrollController.position.pixels) {
+      if (virtualWidth * 0.9 < _scrollController!.position.pixels) {
         setState(() {
           page += 1;
         });
         if (widget.onPageChange != null) {
-          widget.onPageChange(page);
+          widget.onPageChange!(page);
         }
       }
     }
@@ -120,12 +119,12 @@ class _ComicViewerState extends State<ComicViewer> {
       if (page == 1) {
         return;
       }
-      if (virtualWidth - imageWidth > _scrollController.position.pixels) {
+      if (virtualWidth - imageWidth > _scrollController!.position.pixels) {
         setState(() {
           page -= 1;
         });
         if (widget.onPageChange != null) {
-          widget.onPageChange(page);
+          widget.onPageChange!(page);
         }
       }
     }
@@ -137,17 +136,17 @@ class _ComicViewerState extends State<ComicViewer> {
   void verticalScrollListener() {
     final imageHeight = MediaQuery.of(context).size.height;
     final virtualHeight = page * imageHeight;
-    final scrollDirection = _scrollController.position.userScrollDirection;
+    final scrollDirection = _scrollController!.position.userScrollDirection;
     if (scrollDirection == ScrollDirection.reverse) {
       if (page == maxPage) {
         return;
       }
-      if (virtualHeight - (imageHeight / 2) < _scrollController.position.pixels) {
+      if (virtualHeight - (imageHeight / 2) < _scrollController!.position.pixels) {
         setState(() {
           page += 1;
         });
         if (widget.onPageChange != null) {
-          widget.onPageChange(page);
+          widget.onPageChange!(page);
         }
       }
     }
@@ -155,19 +154,19 @@ class _ComicViewerState extends State<ComicViewer> {
       if (page == 1) {
         return;
       }
-      if (virtualHeight - (imageHeight / 2) > _scrollController.position.pixels) {
+      if (virtualHeight - (imageHeight / 2) > _scrollController!.position.pixels) {
         setState(() {
           page -= 1;
         });
         if (widget.onPageChange != null) {
-          widget.onPageChange(page);
+          widget.onPageChange!(page);
         }
       }
     }
   }
 
   /// 全ページ数
-  int get maxPage => (widget.children.length + (widget.hasLastPage ? 1 : 0)).toInt();
+  int get maxPage => (widget.images.length + (widget.hasLastPage ? 1 : 0)).toInt();
 
   ///　画像サイズ
   double get itemSize {
@@ -249,7 +248,7 @@ class _ComicViewerState extends State<ComicViewer> {
                   });
                 }
                 if (_isScale) {
-                  keys[index].currentState.resetController();
+                  keys[index].currentState!.resetController();
                 }
               }
             },
@@ -308,8 +307,7 @@ class _ComicViewerState extends State<ComicViewer> {
               final imageHeight = MediaQuery.of(context).size.height;
               offset = (value.toInt() + 1) * imageHeight;
             }
-            print(offset);
-            _scrollController.animateTo(
+            _scrollController!.animateTo(
               offset,
               duration: const Duration(milliseconds: 100),
               curve: Curves.fastOutSlowIn,
@@ -360,28 +358,13 @@ class _ComicViewerState extends State<ComicViewer> {
               right: false,
               child: Stack(
                 children: [
-                  _buildAppBarCloseButton(context),
+                  CloseButton(color: widget.iconColor),
                   _buildAppBarTitle(context),
                 ],
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildAppBarCloseButton(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: IconButton(
-        icon: Icon(
-          Icons.close,
-          color: widget.iconColor,
-        ),
-        onPressed: () {
-          Navigator.pop(context);
-        },
       ),
     );
   }
@@ -393,11 +376,36 @@ class _ComicViewerState extends State<ComicViewer> {
         width: MediaQuery.of(context).size.width - 94,
         child: Center(
           child: Text(
-            widget.title,
+            widget.title!,
             style: widget.titleStyle ?? TextStyle(color: Colors.white),
             overflow: TextOverflow.ellipsis,
           ),
         ),
+      ),
+    );
+  }
+}
+
+class CloseButton extends StatelessWidget {
+  CloseButton({
+    Key? key,
+    required this.color,
+  }) : super(key: key);
+
+  Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: IconButton(
+        icon: Icon(
+          Icons.close,
+          color: color,
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+        },
       ),
     );
   }

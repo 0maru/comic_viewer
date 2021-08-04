@@ -17,7 +17,7 @@ class TransformController extends ValueNotifier<Matrix4> {
   ///
   /// The [value] defaults to the identity matrix, which corresponds to no
   /// transformation.
-  TransformController([Matrix4 value]) : super(value ?? Matrix4.identity());
+  TransformController([Matrix4? value]) : super(value ?? Matrix4.identity());
 
   /// Return the scene point at the given viewport point.
   ///
