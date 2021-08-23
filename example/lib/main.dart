@@ -68,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return ComicViewer(
       title: 'test',
-      children: [
+      images: [
         Text('1'),
         Text('1'),
         Text('1'),

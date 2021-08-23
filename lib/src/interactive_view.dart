@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-
-
 import 'dart:math' as math;
 
 import 'package:comic_viewer/src/transform_controller.dart';
@@ -82,18 +80,11 @@ class InteractiveView extends StatefulWidget {
     this.transformationController,
     this.onDoubleTap,
     required this.child,
-  })  : assert(alignPanAxis != null),
-        assert(child != null),
-        assert(constrained != null),
-        assert(minScale != null),
-        assert(minScale > 0),
+  })  : assert(minScale > 0),
         assert(minScale.isFinite),
-        assert(maxScale != null),
         assert(maxScale > 0),
         assert(!maxScale.isNaN),
         assert(maxScale >= minScale),
-        assert(panEnabled != null),
-        assert(scaleEnabled != null),
         // boundaryMargin must be either fully infinite or fully finite, but not
         // a mix of both.
         assert((boundaryMargin.horizontal.isInfinite && boundaryMargin.vertical.isInfinite) ||
@@ -784,7 +775,7 @@ class InteractiveViewState extends State<InteractiveView> with TickerProviderSta
       return;
     }
 
-    switch (_gestureType) {
+    switch (_gestureType!) {
       case _GestureType.scale:
         assert(_scaleStart != null);
         // details.scale gives us the amount to change the scale as of the
@@ -808,7 +799,8 @@ class InteractiveViewState extends State<InteractiveView> with TickerProviderSta
           details.localFocalPoint,
         );
         print('_onScaleUpdate ${details.localFocalPoint}');
-        print('focalPointSceneScaled - _referenceFocalPoint: ${focalPointSceneScaled - _referenceFocalPoint!}');
+        print(
+            'focalPointSceneScaled - _referenceFocalPoint: ${focalPointSceneScaled - _referenceFocalPoint!}');
         _transformController!.value = _matrixTranslate(
           _transformController!.value,
           focalPointSceneScaled - _referenceFocalPoint!,
@@ -1063,7 +1055,8 @@ class InteractiveViewState extends State<InteractiveView> with TickerProviderSta
           onDoubleTapToScale(detail, tapOffset);
         },
         onDoubleTap: () {},
-        behavior: HitTestBehavior.opaque, // Necessary when panning off screen.
+        behavior: HitTestBehavior.opaque,
+        // Necessary when panning off screen.
         onScaleEnd: _onScaleEnd,
         onScaleStart: _onScaleStart,
         onScaleUpdate: _onScaleUpdate,

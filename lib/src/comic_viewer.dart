@@ -15,6 +15,9 @@ class ComicViewer extends StatefulWidget {
   /// ページ
   final List<Widget> images;
 
+  /// 漫画の最終ページ後に挿入するページ
+  final List<Widget>? lastPages;
+
   /// ページ遷移時のイベント
   final void Function(int page)? onPageChange;
 
@@ -41,6 +44,7 @@ class ComicViewer extends StatefulWidget {
     this.title,
     this.hasLastPage = false,
     required this.images,
+    this.lastPages,
     this.onPageChange,
     this.onLastPage,
     this.toolbarColor = Colors.blue,
@@ -111,7 +115,7 @@ class _ComicViewerState extends State<ComicViewer> {
           page += 1;
         });
         if (widget.onPageChange != null) {
-          widget.onPageChange!(page);
+          pageChange(page);
         }
       }
     }
@@ -124,7 +128,7 @@ class _ComicViewerState extends State<ComicViewer> {
           page -= 1;
         });
         if (widget.onPageChange != null) {
-          widget.onPageChange!(page);
+          pageChange(page);
         }
       }
     }
@@ -146,7 +150,7 @@ class _ComicViewerState extends State<ComicViewer> {
           page += 1;
         });
         if (widget.onPageChange != null) {
-          widget.onPageChange!(page);
+          pageChange(page);
         }
       }
     }
@@ -159,16 +163,27 @@ class _ComicViewerState extends State<ComicViewer> {
           page -= 1;
         });
         if (widget.onPageChange != null) {
-          widget.onPageChange!(page);
+          pageChange(page);
         }
       }
     }
   }
 
-  /// 全ページ数
-  int get maxPage => (widget.images.length + (widget.hasLastPage ? 1 : 0)).toInt();
+  void pageChange(int page) {
+    widget.onPageChange!(page);
+    // 最終ページの場合 onLastPageを呼び出す
+    if (page == widget.images.length + (widget.lastPages ?? []).length &&
+        widget.onLastPage != null) {
+      widget.onLastPage!();
+    }
+  }
 
-  ///　画像サイズ
+  /// 全ページ数
+  int get maxPage =>
+      (widget.images.length + (widget.lastPages?.isEmpty ?? true ? 0 : widget.lastPages!.length))
+          .toInt();
+
+  /// 画像サイズ
   double get itemSize {
     return direction == Axis.horizontal
         ? MediaQuery.of(context).size.width
@@ -200,6 +215,7 @@ class _ComicViewerState extends State<ComicViewer> {
   List<GlobalKey<InteractiveViewState>> keys = [];
 
   Widget _buildCustomScrollView(BuildContext context) {
+    print('allIndex:${widget.images.length + (widget.lastPages ?? []).length}');
     return Align(
       alignment: Alignment.center,
       child: ListView.builder(
@@ -212,52 +228,71 @@ class _ComicViewerState extends State<ComicViewer> {
             : direction == Axis.horizontal
                 ? PageScrollPhysics()
                 : AlwaysScrollableScrollPhysics(),
-        itemCount: widget.children.length,
+        itemCount: widget.images.length + (widget.lastPages ?? []).length,
         itemBuilder: (context, index) {
-          return InteractiveView(
-            constrained: false,
-            key: keys[index],
-            panEnabled: _isScale,
-            scaleEnabled: _canScale,
-            onDoubleTap: (val) {
-              setState(() {
-                _isScale = val;
-              });
-            },
-            onInteractionUpdate: (details, scale) {
-              // スケールした状態からスケールするとスケール値1.0からになる
-              // 現在のスケール値に足すから？
-              if (scale == 1.0) {
-                return;
-              }
+          if (widget.images.length > index) {
+            return _buildImageWidget(context, index);
+          }
 
-              ///　拡大の遊びを1.2でもたせる
-              if (scale > 1.2) {
-                if (!_canScale) {
-                  setState(() {
-                    _canScale = true;
-                  });
-                }
-                setState(() {
-                  _isScale = true;
-                });
-              } else {
-                if (_canScale) {
-                  setState(() {
-                    _canScale = false;
-                  });
-                }
-                if (_isScale) {
-                  keys[index].currentState!.resetController();
-                }
-              }
-            },
-            child: Image.network(
-              'https://www.pakutaso.com/shared/img/thumb/heriyakei419188_TP_V4.jpg',
-              height: MediaQuery.of(context).size.height,
-            ),
-          );
+          if (widget.images.length < index + 1) {
+            final lastPageIndex = index - widget.images.length;
+            if (widget.lastPages!.length >= lastPageIndex) {
+              return widget.lastPages![lastPageIndex];
+            } else {
+              return const SizedBox.shrink();
+            }
+          }
+          return const SizedBox.shrink();
         },
+      ),
+    );
+  }
+
+  Widget _buildImageWidget(
+    BuildContext context,
+    int index,
+  ) {
+    return InteractiveView(
+      constrained: false,
+      key: keys[index],
+      panEnabled: _isScale,
+      scaleEnabled: _canScale,
+      onDoubleTap: (val) {
+        setState(() {
+          _isScale = val;
+        });
+      },
+      onInteractionUpdate: (details, scale) {
+        // スケールした状態からスケールするとスケール値1.0からになる
+        // 現在のスケール値に足すから？
+        if (scale == 1.0) {
+          return;
+        }
+
+        ///　拡大の遊びを1.2でもたせる
+        if (scale > 1.2) {
+          if (!_canScale) {
+            setState(() {
+              _canScale = true;
+            });
+          }
+          setState(() {
+            _isScale = true;
+          });
+        } else {
+          if (_canScale) {
+            setState(() {
+              _canScale = false;
+            });
+          }
+          if (_isScale) {
+            keys[index].currentState!.resetController();
+          }
+        }
+      },
+      child: Image.network(
+        'https://www.pakutaso.com/shared/img/thumb/heriyakei419188_TP_V4.jpg',
+        height: MediaQuery.of(context).size.height,
       ),
     );
   }
@@ -376,7 +411,7 @@ class _ComicViewerState extends State<ComicViewer> {
         width: MediaQuery.of(context).size.width - 94,
         child: Center(
           child: Text(
-            widget.title!,
+            widget.title ?? '',
             style: widget.titleStyle ?? TextStyle(color: Colors.white),
             overflow: TextOverflow.ellipsis,
           ),
@@ -387,12 +422,12 @@ class _ComicViewerState extends State<ComicViewer> {
 }
 
 class CloseButton extends StatelessWidget {
-  CloseButton({
+  const CloseButton({
     Key? key,
     required this.color,
   }) : super(key: key);
 
-  Color color;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
