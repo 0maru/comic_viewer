@@ -9,9 +9,6 @@ class ComicViewer extends StatefulWidget {
   /// タイトル
   final String? title;
 
-  /// 最終ページ後に1ページ挟む場合は true
-  final bool hasLastPage;
-
   /// ページ
   final List<Widget> images;
 
@@ -19,10 +16,13 @@ class ComicViewer extends StatefulWidget {
   final List<Widget>? lastPages;
 
   /// ページ遷移時のイベント
-  final void Function(int page)? onPageChange;
+  final onPageChangeCallback? onPageChange;
 
   /// 初めて最終ページに到達した先に動く
-  final void Function()? onLastPage;
+  final onLastPageCallback? onLastPage;
+
+  /// 最終ページ後に表示するページ
+  final Widget? lastPage;
 
   /// ツールバーカラー
   final Color toolbarColor;
@@ -42,11 +42,11 @@ class ComicViewer extends StatefulWidget {
   const ComicViewer({
     Key? key,
     this.title,
-    this.hasLastPage = false,
     required this.images,
     this.lastPages,
     this.onPageChange,
     this.onLastPage,
+    this.lastPage,
     this.toolbarColor = Colors.blue,
     this.titleStyle,
     this.iconColor = Colors.white,
@@ -114,6 +114,7 @@ class _ComicViewerState extends State<ComicViewer> {
         setState(() {
           page += 1;
         });
+
         if (widget.onPageChange != null) {
           pageChange(page);
         }
@@ -127,9 +128,8 @@ class _ComicViewerState extends State<ComicViewer> {
         setState(() {
           page -= 1;
         });
-        if (widget.onPageChange != null) {
-          pageChange(page);
-        }
+
+        pageChange(page);
       }
     }
   }
@@ -149,6 +149,7 @@ class _ComicViewerState extends State<ComicViewer> {
         setState(() {
           page += 1;
         });
+
         if (widget.onPageChange != null) {
           pageChange(page);
         }
@@ -162,6 +163,7 @@ class _ComicViewerState extends State<ComicViewer> {
         setState(() {
           page -= 1;
         });
+
         if (widget.onPageChange != null) {
           pageChange(page);
         }
@@ -174,11 +176,12 @@ class _ComicViewerState extends State<ComicViewer> {
     // 最終ページの場合 onLastPageを呼び出す
     if (page == widget.images.length + (widget.lastPages ?? []).length &&
         widget.onLastPage != null) {
-      widget.onLastPage!();
+      widget.onLastPage!(true);
     }
   }
 
-  /// 全ページ数
+  /// 全ページ数<<
+
   int get maxPage =>
       (widget.images.length + (widget.lastPages?.isEmpty ?? true ? 0 : widget.lastPages!.length))
           .toInt();
