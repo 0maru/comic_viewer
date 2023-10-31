@@ -1,0 +1,45 @@
+name: Lint and Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+
+      - name: Add pub cache
+        run: echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
+
+      - name: Add pub cache to PATH
+        run: echo "PUB_CACHE="$HOME/.pub-cache"" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Check format
+        run: dart format --set-exit-if-changed -l 100 .
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test --coverage
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage/lcov.info
