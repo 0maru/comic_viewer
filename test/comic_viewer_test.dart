@@ -1,6 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
-
 import 'package:comic_viewer/comic_viewer.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('adds one to input values', () {
