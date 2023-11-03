@@ -7,6 +7,7 @@ class BottomMenuBar extends StatefulWidget {
   const BottomMenuBar({
     required this.controller,
     required this.theme,
+    required this.visible,
     super.key,
   });
 
@@ -15,6 +16,9 @@ class BottomMenuBar extends StatefulWidget {
 
   ///
   final ComicViewerTheme theme;
+
+  ///
+  final bool visible;
 
   @override
   State<BottomMenuBar> createState() => _BottomMenuBarState();
@@ -26,32 +30,38 @@ class _BottomMenuBarState extends State<BottomMenuBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 96,
-      decoration: BoxDecoration(
-        color: widget.theme.bottomBarBackgroundColor,
+    widget.visible ? widget.controller.forward() : widget.controller.reverse();
+    return SlideTransition(
+      position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(
+        CurvedAnimation(parent: widget.controller, curve: Curves.fastOutSlowIn),
       ),
-      child: SafeArea(
-        child: SliderTheme(
-          data: const SliderThemeData(
-            trackHeight: 1,
-            thumbColor: Colors.blueAccent,
-            thumbShape: RoundSliderThumbShape(
-              enabledThumbRadius: 6,
-              disabledThumbRadius: 6,
+      child: Container(
+        height: 96,
+        decoration: BoxDecoration(
+          color: widget.theme.bottomBarBackgroundColor,
+        ),
+        child: SafeArea(
+          child: SliderTheme(
+            data: const SliderThemeData(
+              trackHeight: 1,
+              thumbColor: Colors.blueAccent,
+              thumbShape: RoundSliderThumbShape(
+                enabledThumbRadius: 6,
+                disabledThumbRadius: 6,
+              ),
             ),
-          ),
-          child: Slider(
-            min: 1,
-            max: 100,
-            activeColor: Colors.blueAccent,
-            inactiveColor: Colors.blueGrey,
-            value: sliderPosition,
-            onChanged: (val) {
-              setState(() {
-                sliderPosition = val;
-              });
-            },
+            child: Slider(
+              min: 1,
+              max: 100,
+              activeColor: Colors.blueAccent,
+              inactiveColor: Colors.blueGrey,
+              value: sliderPosition,
+              onChanged: (val) {
+                setState(() {
+                  sliderPosition = val;
+                });
+              },
+            ),
           ),
         ),
       ),

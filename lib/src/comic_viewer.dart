@@ -99,6 +99,7 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
           BottomMenuBar(
             controller: controller,
             theme: widget.theme,
+            visible: visibleMenuBar,
           ),
     );
   }
