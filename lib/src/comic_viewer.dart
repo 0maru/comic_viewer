@@ -42,7 +42,7 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
   late AnimationController controller;
 
   ///
-  bool visibleAppBar = true;
+  bool visibleMenuBar = true;
 
   double sliderPosition = 1;
 
@@ -69,7 +69,7 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
       backgroundColor: widget.theme.backgroundColor,
       appBar: ScrollingAppBar(
         controller: controller,
-        visible: visibleAppBar,
+        visible: visibleMenuBar,
         child: AppBar(
           backgroundColor: widget.theme.toolBarBackgroundColor,
           leading: leadingButton,
@@ -85,7 +85,7 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
       body: GestureDetector(
         onTap: () {
           setState(() {
-            visibleAppBar = !visibleAppBar;
+            visibleMenuBar = !visibleMenuBar;
           });
         },
         child: Container(
