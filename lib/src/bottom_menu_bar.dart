@@ -41,26 +41,29 @@ class _BottomMenuBarState extends State<BottomMenuBar> {
           color: widget.theme.bottomBarBackgroundColor,
         ),
         child: SafeArea(
-          child: SliderTheme(
-            data: const SliderThemeData(
-              trackHeight: 1,
-              thumbColor: Colors.blueAccent,
-              thumbShape: RoundSliderThumbShape(
-                enabledThumbRadius: 6,
-                disabledThumbRadius: 6,
+          child: Directionality(
+            textDirection: TextDirection.rtl,
+            child: SliderTheme(
+              data: const SliderThemeData(
+                trackHeight: 1,
+                thumbColor: Colors.blueAccent,
+                thumbShape: RoundSliderThumbShape(
+                  enabledThumbRadius: 6,
+                  disabledThumbRadius: 6,
+                ),
               ),
-            ),
-            child: Slider(
-              min: 1,
-              max: 100,
-              activeColor: Colors.blueAccent,
-              inactiveColor: Colors.blueGrey,
-              value: sliderPosition,
-              onChanged: (val) {
-                setState(() {
-                  sliderPosition = val;
-                });
-              },
+              child: Slider(
+                min: 1,
+                max: 100,
+                activeColor: Colors.blueAccent,
+                inactiveColor: Colors.blueGrey,
+                value: sliderPosition,
+                onChanged: (val) {
+                  setState(() {
+                    sliderPosition = val;
+                  });
+                },
+              ),
             ),
           ),
         ),
