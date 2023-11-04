@@ -8,6 +8,8 @@ class BottomMenuBar extends StatefulWidget {
     required this.controller,
     required this.theme,
     required this.visible,
+    required this.onChangeStart,
+    required this.onChangeEnd,
     super.key,
   });
 
@@ -20,6 +22,11 @@ class BottomMenuBar extends StatefulWidget {
   ///
   final bool visible;
 
+  ///
+  final VoidCallback onChangeStart;
+
+  ///
+  final VoidCallback onChangeEnd;
   @override
   State<BottomMenuBar> createState() => _BottomMenuBarState();
 }
@@ -62,6 +69,12 @@ class _BottomMenuBarState extends State<BottomMenuBar> {
                   setState(() {
                     sliderPosition = val;
                   });
+                },
+                onChangeStart: (_) {
+                  widget.onChangeStart();
+                },
+                onChangeEnd: (_) {
+                  widget.onChangeEnd();
                 },
               ),
             ),
