@@ -66,6 +66,7 @@ class ViewerPage extends StatelessWidget {
         toolBarBackgroundColor: Colors.black,
         bottomBarBackgroundColor: Colors.black,
       ),
+      pageCount: 300,
     );
   }
 }

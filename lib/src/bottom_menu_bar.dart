@@ -2,6 +2,21 @@ import 'package:comic_viewer/comic_viewer.dart';
 import 'package:flutter/material.dart';
 
 ///
+class PageCount with ChangeNotifier {
+  ///
+  double _count = 1;
+
+  ///
+  double get count => _count;
+
+  ///
+  void update(double count) {
+    _count = count;
+    notifyListeners();
+  }
+}
+
+///
 class BottomMenuBar extends StatefulWidget {
   ///
   const BottomMenuBar({
@@ -10,6 +25,7 @@ class BottomMenuBar extends StatefulWidget {
     required this.visible,
     required this.onChangeStart,
     required this.onChangeEnd,
+    required this.counterNotifier,
     super.key,
   });
 
@@ -27,6 +43,10 @@ class BottomMenuBar extends StatefulWidget {
 
   ///
   final VoidCallback onChangeEnd;
+
+  ///
+  final PageCount counterNotifier;
+
   @override
   State<BottomMenuBar> createState() => _BottomMenuBarState();
 }
@@ -59,22 +79,23 @@ class _BottomMenuBarState extends State<BottomMenuBar> {
                   disabledThumbRadius: 6,
                 ),
               ),
-              child: Slider(
-                min: 1,
-                max: 100,
-                activeColor: Colors.blueAccent,
-                inactiveColor: Colors.blueGrey,
-                value: sliderPosition,
-                onChanged: (val) {
-                  setState(() {
-                    sliderPosition = val;
-                  });
-                },
-                onChangeStart: (_) {
-                  widget.onChangeStart();
-                },
-                onChangeEnd: (_) {
-                  widget.onChangeEnd();
+              child: ListenableBuilder(
+                listenable: widget.counterNotifier,
+                builder: (BuildContext context, Widget? child) {
+                  return Slider(
+                    min: 1,
+                    max: 100,
+                    activeColor: Colors.blueAccent,
+                    inactiveColor: Colors.blueGrey,
+                    value: widget.counterNotifier.count,
+                    onChanged: widget.counterNotifier.update,
+                    onChangeStart: (_) {
+                      widget.onChangeStart();
+                    },
+                    onChangeEnd: (_) {
+                      widget.onChangeEnd();
+                    },
+                  );
                 },
               ),
             ),
