@@ -14,6 +14,7 @@ class ComicViewer extends StatefulWidget {
   const ComicViewer({
     required this.title,
     required this.theme,
+    required this.itemBuilder,
     required this.pageCount,
     this.leadingButton,
     this.actionButton = const SizedBox.shrink(),
@@ -27,6 +28,9 @@ class ComicViewer extends StatefulWidget {
 
   ///
   final ComicViewerTheme theme;
+
+  ///
+  final Widget Function(BuildContext context, int index) itemBuilder;
 
   ///
   final int pageCount;
@@ -110,11 +114,14 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
                 visibleMenuBar = !visibleMenuBar;
               });
             },
-            child: Container(
-              height: double.infinity,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-              ),
+            child: PageView.builder(
+              itemBuilder: (context, index) {
+                return widget.itemBuilder(
+                  context,
+                  index,
+                );
+              },
+              itemCount: widget.pageCount,
             ),
           ),
           ListenableBuilder(
