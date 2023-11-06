@@ -1,5 +1,6 @@
 import 'package:comic_viewer/src/bottom_menu_bar.dart';
 import 'package:comic_viewer/src/page_scroll_progress_indicator.dart';
+import 'package:comic_viewer/src/page_slider.dart';
 import 'package:comic_viewer/src/scrolling_app_bar.dart';
 import 'package:comic_viewer/src/theme.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ class ComicViewer extends StatefulWidget {
     this.leadingButton,
     this.actionButton = const SizedBox.shrink(),
     this.bottomBar,
+    this.scrollDirection = Axis.horizontal,
     super.key,
   });
 
@@ -37,6 +39,9 @@ class ComicViewer extends StatefulWidget {
 
   ///
   final Widget? bottomBar;
+
+  ///
+  final Axis scrollDirection;
 
   @override
   State<ComicViewer> createState() => _ComicViewerState();
@@ -59,7 +64,7 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
   bool visiblePageScrollProgressIndicator = false;
 
   ///
-  final counterNotifier = PageCount();
+  final pageCountNotifier = PageCount();
 
   @override
   void initState() {
@@ -113,15 +118,42 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
             ),
           ),
           ListenableBuilder(
-            listenable: counterNotifier,
+            listenable: pageCountNotifier,
             builder: (context, child) {
               return PageScrollProgressIndicator(
                 visible: visiblePageScrollProgressIndicator,
-                currentPage: counterNotifier.count.toInt(),
+                currentPage: pageCountNotifier.count.toInt(),
                 totalPage: widget.pageCount,
               );
             },
           ),
+          if (widget.scrollDirection == Axis.vertical)
+            Align(
+              alignment: Alignment.centerRight,
+              child: SlideTransition(
+                position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(
+                  CurvedAnimation(
+                    parent: controller,
+                    curve: Curves.fastOutSlowIn,
+                  ),
+                ),
+                child: Container(
+                  height: double.infinity,
+                  width: 20,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                  child: RotatedBox(
+                    quarterTurns: -1,
+                    child: PageSlider(
+                      theme: widget.theme,
+                      pageCount: widget.pageCount,
+                      pageCountNotifier: pageCountNotifier,
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
       bottomNavigationBar: widget.bottomBar ??
@@ -129,7 +161,7 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
             controller: controller,
             theme: widget.theme,
             visible: visibleMenuBar,
-            counterNotifier: counterNotifier,
+            pageCountNotifier: pageCountNotifier,
             onChangeStart: () {
               setState(() {
                 visiblePageScrollProgressIndicator = true;
@@ -140,6 +172,8 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
                 visiblePageScrollProgressIndicator = false;
               });
             },
+            pageCount: widget.pageCount.toDouble(),
+            scrollDirection: widget.scrollDirection,
           ),
     );
   }

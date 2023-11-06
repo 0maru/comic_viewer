@@ -8,6 +8,9 @@ class ComicViewerTheme {
     required this.toolBarBackgroundColor,
     required this.bottomBarBackgroundColor,
     this.backgroundColor = Colors.white,
+    this.sliderActiveColor = Colors.pink,
+    this.sliderInactiveColor = const Color(0xFFF48FB1),
+    this.sliderThumbColor = Colors.pink,
   });
 
   ///
@@ -21,4 +24,13 @@ class ComicViewerTheme {
 
   ///
   final Color bottomBarBackgroundColor;
+
+  ///
+  final Color sliderActiveColor;
+
+  ///
+  final Color sliderInactiveColor;
+
+  ///
+  final Color sliderThumbColor;
 }
