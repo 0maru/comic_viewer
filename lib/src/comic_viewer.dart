@@ -1,6 +1,7 @@
 import 'package:comic_viewer/src/bottom_menu_bar.dart';
 import 'package:comic_viewer/src/page_scroll_progress_indicator.dart';
 import 'package:comic_viewer/src/page_slider.dart';
+import 'package:comic_viewer/src/page_view.dart';
 import 'package:comic_viewer/src/scrolling_app_bar.dart';
 import 'package:comic_viewer/src/theme.dart';
 import 'package:flutter/material.dart';
@@ -56,6 +57,12 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
   late AnimationController controller;
 
   ///
+  late PageController pageController;
+
+  ///
+  late ScrollController scrollController;
+
+  ///
   bool visibleMenuBar = true;
 
   ///
@@ -77,6 +84,8 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
       vsync: this,
       duration: animationDuration,
     );
+    pageController = PageController();
+    scrollController = ScrollController();
   }
 
   @override
@@ -108,21 +117,15 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
       ),
       body: Stack(
         children: [
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                visibleMenuBar = !visibleMenuBar;
-              });
+          CustomPageView(
+            controller: pageController,
+            scrollDirection: widget.scrollDirection,
+            builder: (BuildContext context, int index) {
+              return widget.itemBuilder(context, index);
             },
-            child: PageView.builder(
-              itemBuilder: (context, index) {
-                return widget.itemBuilder(
-                  context,
-                  index,
-                );
-              },
-              itemCount: widget.pageCount,
-            ),
+            onPageChanged: (index) {
+              pageCountNotifier.update(index.toDouble());
+            },
           ),
           ListenableBuilder(
             listenable: pageCountNotifier,
