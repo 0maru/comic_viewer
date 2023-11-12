@@ -1,6 +1,7 @@
 import 'package:comic_viewer/comic_viewer.dart';
 import 'package:comic_viewer/src/page_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 ///
 class PageCount with ChangeNotifier {
@@ -29,6 +30,7 @@ class BottomMenuBar extends StatefulWidget {
     required this.pageCountNotifier,
     required this.pageCount,
     required this.scrollDirection,
+    required this.onChangeAxis,
     super.key,
   });
 
@@ -56,6 +58,8 @@ class BottomMenuBar extends StatefulWidget {
   ///
   final Axis scrollDirection;
 
+  final ValueChanged<Axis> onChangeAxis;
+
   @override
   State<BottomMenuBar> createState() => _BottomMenuBarState();
 }
@@ -74,19 +78,52 @@ class _BottomMenuBarState extends State<BottomMenuBar> {
           curve: Curves.fastOutSlowIn,
         ),
       ),
-      child: Container(
-        height: 96,
-        decoration: BoxDecoration(
-          color: widget.theme.bottomBarBackgroundColor,
-        ),
+      child: ColoredBox(
+        color: widget.theme.bottomBarBackgroundColor,
         child: SafeArea(
-          child: widget.scrollDirection == Axis.horizontal
-              ? PageSlider(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (widget.scrollDirection == Axis.horizontal)
+                PageSlider(
                   theme: widget.theme,
                   pageCountNotifier: widget.pageCountNotifier,
                   pageCount: widget.pageCount.toInt(),
-                )
-              : const SizedBox(),
+                ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        if (widget.scrollDirection == Axis.horizontal) {
+                          widget.onChangeAxis(Axis.vertical);
+                        } else {
+                          widget.onChangeAxis(Axis.horizontal);
+                        }
+                      },
+                      child: SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: SvgPicture.asset(
+                          'assets/vertical.svg',
+                          height: 20,
+                          package: 'comic_viewer',
+                          theme: const SvgTheme(
+                            currentColor: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -77,9 +77,12 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
   ///
   final pageCountNotifier = PageCount();
 
+  Axis _scrollDirection = Axis.horizontal;
+
   @override
   void initState() {
     super.initState();
+    _scrollDirection = widget.scrollDirection;
     controller = AnimationController(
       vsync: this,
       duration: animationDuration,
@@ -137,7 +140,7 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
               );
             },
           ),
-          if (widget.scrollDirection == Axis.vertical)
+          if (_scrollDirection == Axis.vertical)
             Align(
               alignment: Alignment.centerRight,
               child: SlideTransition(
@@ -183,7 +186,12 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
               });
             },
             pageCount: widget.pageCount.toDouble(),
-            scrollDirection: widget.scrollDirection,
+            scrollDirection: _scrollDirection,
+            onChangeAxis: (axis) {
+              setState(() {
+                _scrollDirection = axis;
+              });
+            },
           ),
     );
   }
