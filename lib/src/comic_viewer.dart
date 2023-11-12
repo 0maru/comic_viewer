@@ -84,6 +84,7 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
   ///
   final pageCountNotifier = PageCount();
 
+  ///
   Axis _scrollDirection = Axis.horizontal;
 
   @override
@@ -131,12 +132,13 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
             onTapDown: (details) {
               final width = MediaQuery.sizeOf(context).width;
               final x = details.localPosition.dx;
-              if (x < width * tapAreaThreshold) {
+              if (_scrollDirection == Axis.horizontal && x < width * tapAreaThreshold) {
                 pageController.nextPage(
                   duration: animationDuration,
                   curve: animation,
                 );
-              } else if (width * (1 - tapAreaThreshold) < x) {
+              } else if (_scrollDirection == Axis.horizontal &&
+                  width * (1 - tapAreaThreshold) < x) {
                 if (pageController.page!.toInt() < 1) {
                   return;
                 }
