@@ -5,9 +5,16 @@ import 'package:comic_viewer/src/page_view.dart';
 import 'package:comic_viewer/src/scrolling_app_bar.dart';
 import 'package:comic_viewer/src/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 ///
 const animationDuration = Duration(milliseconds: 300);
+
+///
+const tapAreaThreshold = 0.25;
+
+///
+const animation = Curves.easeInOut;
 
 ///
 class ComicViewer extends StatefulWidget {
@@ -120,15 +127,48 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
       ),
       body: Stack(
         children: [
-          CustomPageView(
-            controller: pageController,
-            scrollDirection: widget.scrollDirection,
-            builder: (BuildContext context, int index) {
-              return widget.itemBuilder(context, index);
+          GestureDetector(
+            onTapDown: (details) {
+              final width = MediaQuery.sizeOf(context).width;
+              final x = details.localPosition.dx;
+              if (x < width * tapAreaThreshold) {
+                pageController.nextPage(
+                  duration: animationDuration,
+                  curve: animation,
+                );
+              } else if (width * (1 - tapAreaThreshold) < x) {
+                if (pageController.page!.toInt() < 1) {
+                  return;
+                }
+
+                pageController.previousPage(
+                  duration: animationDuration,
+                  curve: animation,
+                );
+              } else {
+                if (visibleMenuBar) {
+                  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+                } else {
+                  SystemChrome.setEnabledSystemUIMode(
+                    SystemUiMode.manual,
+                    overlays: SystemUiOverlay.values,
+                  );
+                }
+                setState(() {
+                  visibleMenuBar = !visibleMenuBar;
+                });
+              }
             },
-            onPageChanged: (index) {
-              pageCountNotifier.update(index.toDouble());
-            },
+            child: CustomPageView(
+              controller: pageController,
+              scrollDirection: _scrollDirection,
+              builder: (BuildContext context, int index) {
+                return widget.itemBuilder(context, index);
+              },
+              onPageChanged: (index) {
+                pageCountNotifier.update(index.toDouble());
+              },
+            ),
           ),
           ListenableBuilder(
             listenable: pageCountNotifier,
