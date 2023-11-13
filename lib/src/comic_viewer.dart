@@ -87,6 +87,8 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
   ///
   Axis _scrollDirection = Axis.horizontal;
 
+  bool shuoldChangeVisibleMenuBar = false;
+
   @override
   void initState() {
     super.initState();
@@ -97,6 +99,28 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
     );
     pageController = PageController();
     scrollController = ScrollController();
+
+    Future.delayed(const Duration(milliseconds: 1000), () {
+      if (shuoldChangeVisibleMenuBar) {
+        return;
+      }
+      changeVisibleMenuBar();
+    });
+  }
+
+  ///
+  void changeVisibleMenuBar() {
+    if (visibleMenuBar) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    } else {
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: SystemUiOverlay.values,
+      );
+    }
+    setState(() {
+      visibleMenuBar = !visibleMenuBar;
+    });
   }
 
   @override
@@ -148,17 +172,8 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
                   curve: animation,
                 );
               } else {
-                if (visibleMenuBar) {
-                  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-                } else {
-                  SystemChrome.setEnabledSystemUIMode(
-                    SystemUiMode.manual,
-                    overlays: SystemUiOverlay.values,
-                  );
-                }
-                setState(() {
-                  visibleMenuBar = !visibleMenuBar;
-                });
+                shuoldChangeVisibleMenuBar = true;
+                changeVisibleMenuBar();
               }
             },
             child: CustomPageView(
