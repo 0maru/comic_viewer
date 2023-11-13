@@ -70,7 +70,10 @@ class _CustomPageViewState extends State<CustomPageView> {
             offset: position,
             slivers: [
               SliverFillViewport(
-                delegate: SliverChildBuilderDelegate(widget.builder),
+                delegate: SliverChildBuilderDelegate(
+                  widget.builder,
+                  childCount: widget.itemCount,
+                ),
               ),
             ],
           );
