@@ -84,7 +84,7 @@ class ViewerPage extends StatelessWidget {
         toolBarBackgroundColor: Colors.black,
         bottomBarBackgroundColor: Colors.black,
       ),
-      pageCount: imagePaths.length,
+      itemCount: imagePaths.length,
       itemBuilder: (ctx, idx) {
         return Container(
           width: MediaQuery.of(context).size.width,

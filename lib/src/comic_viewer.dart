@@ -23,7 +23,7 @@ class ComicViewer extends StatefulWidget {
     required this.title,
     required this.theme,
     required this.itemBuilder,
-    required this.pageCount,
+    required this.itemCount,
     this.leadingButton,
     this.actionButton = const SizedBox.shrink(),
     this.bottomBar,
@@ -41,7 +41,7 @@ class ComicViewer extends StatefulWidget {
   final Widget Function(BuildContext context, int index) itemBuilder;
 
   ///
-  final int pageCount;
+  final int itemCount;
 
   ///
   final Widget? leadingButton;
@@ -164,11 +164,12 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
             child: CustomPageView(
               controller: pageController,
               scrollDirection: _scrollDirection,
+              itemCount: widget.itemCount,
               builder: (BuildContext context, int index) {
                 return widget.itemBuilder(context, index);
               },
               onPageChanged: (index) {
-                pageCountNotifier.update(index.toDouble());
+                pageCountNotifier.update(index.toDouble() + 1);
               },
             ),
           ),
@@ -178,7 +179,7 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
               return PageScrollProgressIndicator(
                 visible: visiblePageScrollProgressIndicator,
                 currentPage: pageCountNotifier.count.toInt(),
-                totalPage: widget.pageCount,
+                totalPage: widget.itemCount,
               );
             },
           ),
@@ -202,7 +203,7 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
                     quarterTurns: -1,
                     child: PageSlider(
                       theme: widget.theme,
-                      pageCount: widget.pageCount,
+                      pageCount: widget.itemCount,
                       pageCountNotifier: pageCountNotifier,
                     ),
                   ),
@@ -227,7 +228,7 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
                 visiblePageScrollProgressIndicator = false;
               });
             },
-            pageCount: widget.pageCount.toDouble(),
+            pageCount: widget.itemCount.toDouble(),
             scrollDirection: _scrollDirection,
             onChangeAxis: (axis) {
               setState(() {

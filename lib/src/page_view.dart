@@ -5,6 +5,7 @@ class CustomPageView extends StatefulWidget {
   ///
   const CustomPageView({
     required this.builder,
+    required this.itemCount,
     required this.controller,
     required this.scrollDirection,
     required this.onPageChanged,
@@ -13,6 +14,8 @@ class CustomPageView extends StatefulWidget {
 
   ///
   final PageController controller;
+
+  final int itemCount;
 
   ///
   final Widget Function(BuildContext, int) builder;
