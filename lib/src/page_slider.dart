@@ -36,6 +36,7 @@ class PageSlider extends StatelessWidget {
                 enabledThumbRadius: 6,
                 disabledThumbRadius: 6,
               ),
+              overlayShape: SliderComponentShape.noOverlay,
             ),
             child: Slider(
               min: 1,

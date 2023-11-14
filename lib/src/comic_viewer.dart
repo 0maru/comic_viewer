@@ -56,10 +56,11 @@ class ComicViewer extends StatefulWidget {
   final Axis scrollDirection;
 
   @override
-  State<ComicViewer> createState() => _ComicViewerState();
+  State<ComicViewer> createState() => ComicViewerState();
 }
 
-class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStateMixin {
+///
+class ComicViewerState extends State<ComicViewer> with SingleTickerProviderStateMixin {
   ///
   late AnimationController controller;
 
@@ -70,23 +71,18 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
   late ScrollController scrollController;
 
   ///
+  late PageCount pageCountNotifier;
+
+  ///
+  late Axis _scrollDirection;
+
+  ///
   bool visibleMenuBar = true;
-
-  ///
-  double sliderPosition = 1;
-
-  ///
-  bool showPagePreview = false;
 
   ///
   bool visiblePageScrollProgressIndicator = false;
 
   ///
-  final pageCountNotifier = PageCount();
-
-  ///
-  Axis _scrollDirection = Axis.horizontal;
-
   bool shuoldChangeVisibleMenuBar = false;
 
   @override
@@ -99,6 +95,7 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
     );
     pageController = PageController();
     scrollController = ScrollController();
+    pageCountNotifier = PageCount();
 
     Future.delayed(const Duration(milliseconds: 1000), () {
       if (shuoldChangeVisibleMenuBar) {
@@ -120,6 +117,13 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
     }
     setState(() {
       visibleMenuBar = !visibleMenuBar;
+    });
+  }
+
+  ///
+  void changeScrollDirection(Axis axis) {
+    setState(() {
+      _scrollDirection = axis;
     });
   }
 
@@ -180,7 +184,7 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
               controller: pageController,
               scrollDirection: _scrollDirection,
               itemCount: widget.itemCount,
-              builder: (BuildContext context, int index) {
+              builder: (context, index) {
                 return widget.itemBuilder(context, index);
               },
               onPageChanged: (index) {
@@ -227,30 +231,26 @@ class _ComicViewerState extends State<ComicViewer> with SingleTickerProviderStat
             ),
         ],
       ),
-      bottomNavigationBar: widget.bottomBar ??
-          BottomMenuBar(
-            controller: controller,
-            theme: widget.theme,
-            visible: visibleMenuBar,
-            pageCountNotifier: pageCountNotifier,
-            onChangeStart: () {
-              setState(() {
-                visiblePageScrollProgressIndicator = true;
-              });
-            },
-            onChangeEnd: () {
-              setState(() {
-                visiblePageScrollProgressIndicator = false;
-              });
-            },
-            pageCount: widget.itemCount.toDouble(),
-            scrollDirection: _scrollDirection,
-            onChangeAxis: (axis) {
-              setState(() {
-                _scrollDirection = axis;
-              });
-            },
-          ),
+      bottomNavigationBar: BottomMenuBar(
+        controller: controller,
+        theme: widget.theme,
+        visible: visibleMenuBar,
+        pageCountNotifier: pageCountNotifier,
+        onChangeStart: () {
+          setState(() {
+            visiblePageScrollProgressIndicator = true;
+          });
+        },
+        onChangeEnd: () {
+          setState(() {
+            visiblePageScrollProgressIndicator = false;
+          });
+        },
+        pageCount: widget.itemCount.toDouble(),
+        scrollDirection: _scrollDirection,
+        onChangeScrollDirection: changeScrollDirection,
+        child: widget.bottomBar,
+      ),
     );
   }
 }

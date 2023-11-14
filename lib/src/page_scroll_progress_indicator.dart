@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 ///
+const indicatorSize = 104.0;
+
+///
 class PageScrollProgressIndicator extends StatelessWidget {
   ///
   const PageScrollProgressIndicator({
@@ -26,8 +29,8 @@ class PageScrollProgressIndicator extends StatelessWidget {
       child: Align(
         child: Center(
           child: Container(
-            height: 104,
-            width: 104,
+            height: indicatorSize,
+            width: indicatorSize,
             decoration: BoxDecoration(
               color: Colors.black.withOpacity(0.6),
               borderRadius: BorderRadius.circular(10),
@@ -58,8 +61,8 @@ class PageScrollProgressIndicator extends StatelessWidget {
                     child: CustomPaint(
                       painter: Line(),
                       child: const SizedBox(
-                        width: 104,
-                        height: 104,
+                        width: indicatorSize,
+                        height: indicatorSize,
                       ),
                     ),
                   ),

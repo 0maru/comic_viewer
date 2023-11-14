@@ -22,6 +22,7 @@ class PageCount with ChangeNotifier {
 class BottomMenuBar extends StatefulWidget {
   ///
   const BottomMenuBar({
+    required this.child,
     required this.controller,
     required this.theme,
     required this.visible,
@@ -30,9 +31,12 @@ class BottomMenuBar extends StatefulWidget {
     required this.pageCountNotifier,
     required this.pageCount,
     required this.scrollDirection,
-    required this.onChangeAxis,
+    required this.onChangeScrollDirection,
     super.key,
   });
+
+  ///
+  final Widget? child;
 
   ///
   final AnimationController controller;
@@ -47,30 +51,62 @@ class BottomMenuBar extends StatefulWidget {
   final bool visible;
 
   ///
+  final PageCount pageCountNotifier;
+
+  ///
+  final Axis scrollDirection;
+
+  ///
   final VoidCallback onChangeStart;
 
   ///
   final VoidCallback onChangeEnd;
 
   ///
-  final PageCount pageCountNotifier;
-
-  ///
-  final Axis scrollDirection;
-
-  final ValueChanged<Axis> onChangeAxis;
+  final ValueChanged<Axis> onChangeScrollDirection;
 
   @override
   State<BottomMenuBar> createState() => _BottomMenuBarState();
 }
 
 class _BottomMenuBarState extends State<BottomMenuBar> {
-  ///
-  double sliderPosition = 1;
-
   @override
   Widget build(BuildContext context) {
     widget.visible ? widget.controller.forward() : widget.controller.reverse();
+
+    final bottomWidget = widget.child ??
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              InkWell(
+                onTap: () {
+                  if (widget.scrollDirection == Axis.horizontal) {
+                    widget.onChangeScrollDirection(Axis.vertical);
+                  } else {
+                    widget.onChangeScrollDirection(Axis.horizontal);
+                  }
+                },
+                child: SizedBox(
+                  width: 28,
+                  height: 28,
+                  child: SvgPicture.asset(
+                    'assets/vertical.svg',
+                    height: 20,
+                    package: 'comic_viewer',
+                    theme: const SvgTheme(
+                      currentColor: Colors.white,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+
     return SlideTransition(
       position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(
         CurvedAnimation(
@@ -85,43 +121,14 @@ class _BottomMenuBarState extends State<BottomMenuBar> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 8),
               if (widget.scrollDirection == Axis.horizontal)
                 PageSlider(
                   theme: widget.theme,
                   pageCountNotifier: widget.pageCountNotifier,
                   pageCount: widget.pageCount.toInt(),
                 ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        if (widget.scrollDirection == Axis.horizontal) {
-                          widget.onChangeAxis(Axis.vertical);
-                        } else {
-                          widget.onChangeAxis(Axis.horizontal);
-                        }
-                      },
-                      child: SizedBox(
-                        width: 28,
-                        height: 28,
-                        child: SvgPicture.asset(
-                          'assets/vertical.svg',
-                          height: 20,
-                          package: 'comic_viewer',
-                          theme: const SvgTheme(
-                            currentColor: Colors.white,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              bottomWidget,
             ],
           ),
         ),

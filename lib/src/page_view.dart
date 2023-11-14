@@ -15,10 +15,11 @@ class CustomPageView extends StatefulWidget {
   ///
   final PageController controller;
 
-  final int itemCount;
-
   ///
   final Widget Function(BuildContext, int) builder;
+
+  ///
+  final int itemCount;
 
   ///
   final ValueChanged<int> onPageChanged;
@@ -37,6 +38,7 @@ class _CustomPageViewState extends State<CustomPageView> {
   ///
   bool isZoomIn = false;
 
+  ///
   late TransformationController _transformationController;
 
   @override
