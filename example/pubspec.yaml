@@ -12,6 +12,7 @@ dependencies:
     path: ../
   flutter:
     sdk: flutter
+  share_plus: ^7.2.1
 
 dev_dependencies:
   flutter_test:
