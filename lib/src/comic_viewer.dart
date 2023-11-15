@@ -161,6 +161,9 @@ class ComicViewerState extends State<ComicViewer> with SingleTickerProviderState
         overlays: SystemUiOverlay.values,
       );
     }
+    if (!mounted) {
+      return;
+    }
     setState(() {
       visibleMenuBar = !visibleMenuBar;
     });
@@ -168,6 +171,9 @@ class ComicViewerState extends State<ComicViewer> with SingleTickerProviderState
 
   ///
   void changeScrollDirection(Axis axis) {
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _scrollDirection = axis;
     });
