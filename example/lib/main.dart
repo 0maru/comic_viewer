@@ -1,4 +1,5 @@
-import 'package:comic_viewer/comic_viewer.dart';
+import 'package:comic_viewer_example/basic.dart';
+import 'package:comic_viewer_example/custom_bottom_widget.dart';
 import 'package:flutter/material.dart';
 
 const imagePaths = [
@@ -34,15 +35,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: ''),
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -52,55 +51,35 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: TextButton(
-          child: const Text('open'),
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => const ViewerPage(),
-                fullscreenDialog: true,
-              ),
-            );
-          },
+      appBar: AppBar(),
+      body: SafeArea(
+        child: Column(
+          children: [
+            ListTile(
+              title: const Text('Basic example'),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const BasicViewer(),
+                    fullscreenDialog: true,
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              title: const Text('Custom Bottom Bar example'),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const CustomBottomWidgetViewer(),
+                    fullscreenDialog: true,
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
-    );
-  }
-}
-
-class ViewerPage extends StatelessWidget {
-  const ViewerPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ComicViewer(
-      title: 'Hello world!',
-      theme: ComicViewerTheme(
-        toolBarTextStyle: const TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-        ),
-        toolBarBackgroundColor: Colors.black,
-        bottomBarBackgroundColor: Colors.black,
-      ),
-      itemCount: imagePaths.length,
-      itemBuilder: (ctx, idx) {
-        return Container(
-          width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.black),
-          ),
-          constraints: BoxConstraints(
-            minWidth: MediaQuery.of(context).size.width,
-            maxHeight: MediaQuery.of(context).size.width,
-          ),
-          child: Image.asset(
-            imagePaths[idx],
-            fit: BoxFit.contain,
-          ),
-        );
-      },
     );
   }
 }
