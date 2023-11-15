@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 class ComicViewerTheme {
   ///
   ComicViewerTheme({
-    required this.toolBarTextStyle,
-    required this.toolBarBackgroundColor,
-    required this.bottomBarBackgroundColor,
+    this.toolBarBackgroundColor = Colors.black,
+    this.bottomBarBackgroundColor = Colors.black,
+    this.toolBarTextStyle = const TextStyle(
+      color: Colors.white,
+      fontSize: 16,
+    ),
     this.backgroundColor = Colors.white,
     this.sliderActiveColor = Colors.pink,
     this.sliderInactiveColor = const Color(0xFFF48FB1),
