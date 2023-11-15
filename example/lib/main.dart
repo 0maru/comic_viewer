@@ -1,5 +1,6 @@
 import 'package:comic_viewer_example/basic.dart';
 import 'package:comic_viewer_example/custom_bottom_widget.dart';
+import 'package:comic_viewer_example/left_to_right_scroll_viewer.dart';
 import 'package:flutter/material.dart';
 
 const imagePaths = [
@@ -72,6 +73,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => const CustomBottomWidgetViewer(),
+                    fullscreenDialog: true,
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              title: const Text('Left to Right Scroll Viewer example'),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const LeftToRightScrollViewer(),
                     fullscreenDialog: true,
                   ),
                 );
