@@ -1,3 +1,4 @@
+import 'package:comic_viewer/comic_viewer.dart';
 import 'package:flutter/material.dart';
 
 /// [PageView]
@@ -10,6 +11,7 @@ class CustomPageView extends StatefulWidget {
     required this.scrollDirection,
     required this.onPageChanged,
     required this.scaleEnabled,
+    required this.readDirection,
     super.key,
   });
 
@@ -28,7 +30,11 @@ class CustomPageView extends StatefulWidget {
   ///
   final Axis scrollDirection;
 
+  /// [InteractiveViewer.scaleEnabled]
   final bool scaleEnabled;
+
+  ///
+  final ReadDirection readDirection;
 
   @override
   State<CustomPageView> createState() => _CustomPageViewState();
@@ -68,7 +74,7 @@ class _CustomPageViewState extends State<CustomPageView> {
   @override
   Widget build(BuildContext context) {
     final isVertical = widget.scrollDirection == Axis.vertical;
-    final axisDirection = isVertical ? AxisDirection.down : AxisDirection.left;
+    final axisDirection = isVertical ? AxisDirection.down : (widget.readDirection.axisDirection);
 
     return NotificationListener<ScrollNotification>(
       onNotification: (ScrollNotification notification) {

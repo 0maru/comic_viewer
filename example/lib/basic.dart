@@ -14,14 +14,7 @@ class _BasicViewerState extends State<BasicViewer> {
   Widget build(BuildContext context) {
     return ComicViewer(
       title: 'Hello world!',
-      theme: ComicViewerTheme(
-        toolBarTextStyle: const TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-        ),
-        toolBarBackgroundColor: Colors.black,
-        bottomBarBackgroundColor: Colors.black,
-      ),
+      verticalScrollEnabled: true,
       itemCount: imagePaths.length,
       itemBuilder: (ctx, idx) {
         return Container(
@@ -47,7 +40,7 @@ class _BasicViewerState extends State<BasicViewer> {
         onPressed: () {
           print('onPressed');
         },
-      )
+      ),
     );
   }
 }

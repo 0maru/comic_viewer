@@ -9,6 +9,7 @@ class PageSlider extends StatelessWidget {
     required this.theme,
     required this.pageCountNotifier,
     required this.pageCount,
+    required this.readDirection,
     super.key,
   });
 
@@ -19,6 +20,9 @@ class PageSlider extends StatelessWidget {
   final int pageCount;
 
   ///
+  final ReadDirection readDirection;
+
+  ///
   final PageCount pageCountNotifier;
 
   @override
@@ -27,7 +31,7 @@ class PageSlider extends StatelessWidget {
       listenable: pageCountNotifier,
       builder: (context, child) {
         return Directionality(
-          textDirection: TextDirection.rtl,
+          textDirection: readDirection.textDirection,
           child: SliderTheme(
             data: SliderThemeData(
               trackHeight: 1,

@@ -30,7 +30,9 @@ class BottomMenuBar extends StatefulWidget {
     required this.onChangeEnd,
     required this.pageCountNotifier,
     required this.pageCount,
+    required this.readDirection,
     required this.scrollDirection,
+    required this.verticalScrollEnabled,
     required this.onChangeScrollDirection,
     super.key,
   });
@@ -57,6 +59,12 @@ class BottomMenuBar extends StatefulWidget {
   final Axis scrollDirection;
 
   ///
+  final ReadDirection readDirection;
+
+  ///
+  final bool verticalScrollEnabled;
+
+  ///
   final VoidCallback onChangeStart;
 
   ///
@@ -81,28 +89,29 @@ class _BottomMenuBarState extends State<BottomMenuBar> {
             mainAxisAlignment: MainAxisAlignment.end,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              InkWell(
-                onTap: () {
-                  if (widget.scrollDirection == Axis.horizontal) {
-                    widget.onChangeScrollDirection(Axis.vertical);
-                  } else {
-                    widget.onChangeScrollDirection(Axis.horizontal);
-                  }
-                },
-                child: SizedBox(
-                  width: 28,
-                  height: 28,
-                  child: SvgPicture.asset(
-                    'assets/vertical.svg',
-                    height: 20,
-                    package: 'comic_viewer',
-                    theme: SvgTheme(
-                      currentColor: widget.theme.changeScrollDirectionButtonColor,
-                      fontSize: 12,
+              if (widget.verticalScrollEnabled)
+                InkWell(
+                  onTap: () {
+                    if (widget.scrollDirection == Axis.horizontal) {
+                      widget.onChangeScrollDirection(Axis.vertical);
+                    } else {
+                      widget.onChangeScrollDirection(Axis.horizontal);
+                    }
+                  },
+                  child: SizedBox(
+                    width: 28,
+                    height: 28,
+                    child: SvgPicture.asset(
+                      'assets/vertical.svg',
+                      height: 20,
+                      package: 'comic_viewer',
+                      theme: SvgTheme(
+                        currentColor: widget.theme.changeScrollDirectionButtonColor,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         );
@@ -127,6 +136,7 @@ class _BottomMenuBarState extends State<BottomMenuBar> {
                   theme: widget.theme,
                   pageCountNotifier: widget.pageCountNotifier,
                   pageCount: widget.pageCount.toInt(),
+                  readDirection: widget.readDirection,
                 ),
               bottomWidget,
             ],

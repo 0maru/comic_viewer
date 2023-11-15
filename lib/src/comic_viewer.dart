@@ -7,28 +7,62 @@ import 'package:comic_viewer/src/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-///
+/// Animation duration
 const animationDuration = Duration(milliseconds: 300);
 
-///
+/// Tap area threshold
 const tapAreaThreshold = 0.25;
 
-///
+/// Animation curve
 const animation = Curves.easeInOut;
+
+///
+enum ReadDirection {
+  /// Left to right
+  ltr,
+
+  /// Right to left
+  rtl,
+}
+
+///
+extension ReadDirectionExt on ReadDirection {
+  ///
+  TextDirection get textDirection {
+    switch (this) {
+      case ReadDirection.ltr:
+        return TextDirection.rtl;
+      case ReadDirection.rtl:
+        return TextDirection.ltr;
+    }
+  }
+
+  ///
+  AxisDirection get axisDirection {
+    switch (this) {
+      case ReadDirection.ltr:
+        return AxisDirection.left;
+      case ReadDirection.rtl:
+        return AxisDirection.right;
+    }
+  }
+}
 
 ///
 class ComicViewer extends StatefulWidget {
   ///
   const ComicViewer({
     required this.title,
-    required this.theme,
     required this.itemBuilder,
     required this.itemCount,
+    this.theme,
     this.leadingButton,
     this.actionButton = const SizedBox.shrink(),
     this.bottomBar,
     this.scrollDirection = Axis.horizontal,
     this.scaleEnabled = true,
+    this.readDirection = ReadDirection.ltr,
+    this.verticalScrollEnabled = false,
     super.key,
   });
 
@@ -36,7 +70,7 @@ class ComicViewer extends StatefulWidget {
   final String title;
 
   ///
-  final ComicViewerTheme theme;
+  final ComicViewerTheme? theme;
 
   ///
   final Widget Function(BuildContext context, int index) itemBuilder;
@@ -59,6 +93,12 @@ class ComicViewer extends StatefulWidget {
   ///
   final bool scaleEnabled;
 
+  ///
+  final ReadDirection readDirection;
+
+  ///
+  final bool verticalScrollEnabled;
+
   @override
   State<ComicViewer> createState() => ComicViewerState();
 }
@@ -80,6 +120,8 @@ class ComicViewerState extends State<ComicViewer> with SingleTickerProviderState
   ///
   late Axis _scrollDirection;
 
+  late ComicViewerTheme _theme;
+
   ///
   bool visibleMenuBar = true;
 
@@ -100,7 +142,7 @@ class ComicViewerState extends State<ComicViewer> with SingleTickerProviderState
     pageController = PageController();
     scrollController = ScrollController();
     pageCountNotifier = PageCount();
-
+    _theme = widget.theme ?? ComicViewerTheme();
     Future.delayed(const Duration(milliseconds: 1000), () {
       if (shuoldChangeVisibleMenuBar) {
         return;
@@ -135,26 +177,26 @@ class ComicViewerState extends State<ComicViewer> with SingleTickerProviderState
   Widget build(BuildContext context) {
     final leadingButton = widget.leadingButton ??
         CloseButton(
-          color: widget.theme.closeButtonColor,
+          color: _theme.closeButtonColor,
           onPressed: () {
             Navigator.of(context).pop();
           },
         );
 
     return Scaffold(
-      backgroundColor: widget.theme.backgroundColor,
+      backgroundColor: _theme.backgroundColor,
       appBar: ScrollingAppBar(
         controller: controller,
         visible: visibleMenuBar,
         child: AppBar(
-          backgroundColor: widget.theme.toolBarBackgroundColor,
+          backgroundColor: _theme.toolBarBackgroundColor,
           leading: leadingButton,
           actions: [
             widget.actionButton,
           ],
           title: Text(
             widget.title,
-            style: widget.theme.toolBarTextStyle,
+            style: _theme.toolBarTextStyle,
           ),
         ),
       ),
@@ -189,6 +231,7 @@ class ComicViewerState extends State<ComicViewer> with SingleTickerProviderState
               scrollDirection: _scrollDirection,
               itemCount: widget.itemCount,
               scaleEnabled: widget.scaleEnabled,
+              readDirection: widget.readDirection,
               builder: (context, index) {
                 return widget.itemBuilder(context, index);
               },
@@ -221,14 +264,15 @@ class ComicViewerState extends State<ComicViewer> with SingleTickerProviderState
                   height: double.infinity,
                   width: 20,
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
+                    color: _theme.toolBarBackgroundColor.withOpacity(0.5),
                   ),
                   child: RotatedBox(
                     quarterTurns: -1,
                     child: PageSlider(
-                      theme: widget.theme,
+                      theme: _theme,
                       pageCount: widget.itemCount,
                       pageCountNotifier: pageCountNotifier,
+                      readDirection: widget.readDirection,
                     ),
                   ),
                 ),
@@ -238,7 +282,7 @@ class ComicViewerState extends State<ComicViewer> with SingleTickerProviderState
       ),
       bottomNavigationBar: BottomMenuBar(
         controller: controller,
-        theme: widget.theme,
+        theme: _theme,
         visible: visibleMenuBar,
         pageCountNotifier: pageCountNotifier,
         onChangeStart: () {
@@ -254,6 +298,8 @@ class ComicViewerState extends State<ComicViewer> with SingleTickerProviderState
         pageCount: widget.itemCount.toDouble(),
         scrollDirection: _scrollDirection,
         onChangeScrollDirection: changeScrollDirection,
+        verticalScrollEnabled: widget.verticalScrollEnabled,
+        readDirection: widget.readDirection,
         child: widget.bottomBar,
       ),
     );
