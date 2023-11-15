@@ -28,6 +28,7 @@ class ComicViewer extends StatefulWidget {
     this.actionButton = const SizedBox.shrink(),
     this.bottomBar,
     this.scrollDirection = Axis.horizontal,
+    this.scaleEnabled = true,
     super.key,
   });
 
@@ -54,6 +55,9 @@ class ComicViewer extends StatefulWidget {
 
   ///
   final Axis scrollDirection;
+
+  ///
+  final bool scaleEnabled;
 
   @override
   State<ComicViewer> createState() => ComicViewerState();
@@ -184,6 +188,7 @@ class ComicViewerState extends State<ComicViewer> with SingleTickerProviderState
               controller: pageController,
               scrollDirection: _scrollDirection,
               itemCount: widget.itemCount,
+              scaleEnabled: widget.scaleEnabled,
               builder: (context, index) {
                 return widget.itemBuilder(context, index);
               },

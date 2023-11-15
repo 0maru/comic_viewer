@@ -9,6 +9,7 @@ class CustomPageView extends StatefulWidget {
     required this.controller,
     required this.scrollDirection,
     required this.onPageChanged,
+    required this.scaleEnabled,
     super.key,
   });
 
@@ -26,6 +27,8 @@ class CustomPageView extends StatefulWidget {
 
   ///
   final Axis scrollDirection;
+
+  final bool scaleEnabled;
 
   @override
   State<CustomPageView> createState() => _CustomPageViewState();
@@ -114,6 +117,7 @@ class _CustomPageViewState extends State<CustomPageView> {
                         transformationController: _transformationController,
                         minScale: 1,
                         maxScale: 3,
+                        scaleEnabled: widget.scaleEnabled,
                         child: widget.builder(ctx, idx),
                       ),
                     );
