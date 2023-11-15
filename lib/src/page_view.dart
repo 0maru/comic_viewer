@@ -101,6 +101,10 @@ class _CustomPageViewState extends State<CustomPageView> {
                   (ctx, idx) {
                     return GestureDetector(
                       onDoubleTapDown: (details) {
+                        if (!widget.scaleEnabled) {
+                          return;
+                        }
+
                         if (isZoomIn) {
                           _transformationController.value = Matrix4.identity();
                           return;

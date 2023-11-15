@@ -96,8 +96,8 @@ class _BottomMenuBarState extends State<BottomMenuBar> {
                     'assets/vertical.svg',
                     height: 20,
                     package: 'comic_viewer',
-                    theme: const SvgTheme(
-                      currentColor: Colors.white,
+                    theme: SvgTheme(
+                      currentColor: widget.theme.changeScrollDirectionButtonColor,
                       fontSize: 12,
                     ),
                   ),

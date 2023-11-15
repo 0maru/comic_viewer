@@ -11,6 +11,8 @@ class ComicViewerTheme {
     this.sliderActiveColor = Colors.pink,
     this.sliderInactiveColor = const Color(0xFFF48FB1),
     this.sliderThumbColor = Colors.pink,
+    this.closeButtonColor = Colors.white,
+    this.changeScrollDirectionButtonColor = Colors.white,
   });
 
   ///
@@ -33,4 +35,10 @@ class ComicViewerTheme {
 
   ///
   final Color sliderThumbColor;
+
+  ///
+  final Color closeButtonColor;
+
+  ///
+  final Color changeScrollDirectionButtonColor;
 }

@@ -135,7 +135,7 @@ class ComicViewerState extends State<ComicViewer> with SingleTickerProviderState
   Widget build(BuildContext context) {
     final leadingButton = widget.leadingButton ??
         CloseButton(
-          color: Colors.white,
+          color: widget.theme.closeButtonColor,
           onPressed: () {
             Navigator.of(context).pop();
           },
